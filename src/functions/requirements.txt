@@ -1,0 +1,11 @@
+# Azure Functions Python
+azure-functions==1.18.0
+
+# Database
+asyncpg==0.29.0
+sqlalchemy==2.0.25
+
+# Azure SDK
+azure-identity==1.15.0
+azure-keyvault-secrets==4.7.0
+azure-storage-blob==12.19.0

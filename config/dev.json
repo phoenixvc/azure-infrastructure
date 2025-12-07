@@ -1,0 +1,24 @@
+{
+"org": "nl",
+"env": "dev",
+"project": "rooivalk",
+"region": "euw",
+"azure": {
+  "subscription_id": "00000000-0000-0000-0000-000000000000",
+  "resource_group": "nl-dev-rooivalk-rg-euw",
+  "location": "westeurope"
+},
+"features": {
+  "enable_auth": false,
+  "enable_caching": false,
+  "debug_mode": true
+},
+"database": {
+  "host": "nl-dev-rooivalk-db-euw.postgres.database.azure.com",
+  "port": 5432,
+  "name": "rooivalk_dev"
+},
+"logging": {
+  "level": "DEBUG"
+}
+}

@@ -1,0 +1,24 @@
+{
+"org": "nl",
+"env": "staging",
+"project": "rooivalk",
+"region": "euw",
+"azure": {
+  "subscription_id": "00000000-0000-0000-0000-000000000000",
+  "resource_group": "nl-staging-rooivalk-rg-euw",
+  "location": "westeurope"
+},
+"features": {
+  "enable_auth": true,
+  "enable_caching": true,
+  "debug_mode": false
+},
+"database": {
+  "host": "nl-staging-rooivalk-db-euw.postgres.database.azure.com",
+  "port": 5432,
+  "name": "rooivalk_staging"
+},
+"logging": {
+  "level": "INFO"
+}
+}

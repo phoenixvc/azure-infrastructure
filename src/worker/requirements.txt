@@ -1,0 +1,15 @@
+# Background Worker
+python-dotenv==1.0.0
+
+# Azure SDK
+azure-identity==1.15.0
+azure-servicebus==7.11.4
+azure-storage-queue==12.9.0
+
+# Database
+asyncpg==0.29.0
+sqlalchemy==2.0.25
+
+# Task processing
+celery==5.3.4
+redis==5.0.1
