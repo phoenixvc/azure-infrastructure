@@ -155,8 +155,129 @@ See `infra/modules/log-analytics/` for the Bicep implementation.
 | Query performance | Low | Low | Optimize KQL, use summarize |
 | Alert fatigue | Medium | Medium | Tune thresholds, use smart detection |
 
+## Cost Estimation
+
+### Azure Monitor Pricing Components
+
+| Component | Pricing Model | Typical Cost |
+|-----------|---------------|--------------|
+| Log Analytics ingestion | Per GB | ~$2.76/GB |
+| App Insights ingestion | Per GB | ~$2.76/GB |
+| Retention (>30 days) | Per GB/month | ~$0.12/GB |
+| Alerts | Per rule/month | ~$0.10-1.50 |
+| Availability tests | Per test/month | ~$1.00 |
+
+### Cost Optimization Strategies
+
+| Strategy | Savings | Implementation |
+|----------|---------|----------------|
+| Sampling | 50-90% | Enable adaptive sampling |
+| Retention policies | 30-50% | Set appropriate retention |
+| Data collection rules | 20-40% | Filter unnecessary data |
+| Commitment tiers | 10-30% | 100GB+/day commitments |
+| Archive tier | 60-80% | Move cold data to archive |
+
+### Monthly Cost Estimates
+
+| Tier | Data Volume | Estimated Cost |
+|------|-------------|----------------|
+| Small | 5 GB/day | ~$400/month |
+| Medium | 50 GB/day | ~$3,500/month |
+| Large | 500 GB/day | ~$25,000/month |
+
+## Multi-Cloud Alternatives
+
+### Observability Platform Mapping
+
+| Azure | AWS | GCP | Open Source |
+|-------|-----|-----|-------------|
+| Application Insights | X-Ray | Cloud Trace | Jaeger, Zipkin |
+| Log Analytics | CloudWatch Logs | Cloud Logging | Loki, Elasticsearch |
+| Azure Monitor | CloudWatch | Cloud Monitoring | Prometheus + Grafana |
+| Alerts | CloudWatch Alarms | Cloud Alerting | Alertmanager |
+| Workbooks | CloudWatch Dashboards | Looker Studio | Grafana |
+
+### OpenTelemetry Integration
+
+| Component | Azure | AWS | GCP | Self-Hosted |
+|-----------|-------|-----|-----|-------------|
+| Traces | App Insights | X-Ray | Cloud Trace | Jaeger |
+| Metrics | Azure Monitor | CloudWatch | Cloud Monitoring | Prometheus |
+| Logs | Log Analytics | CloudWatch | Cloud Logging | Loki |
+| Collector | OTLP exporter | OTLP exporter | OTLP exporter | OTLP exporter |
+
+### Cloud-Agnostic Stack
+
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| Collection | OpenTelemetry | Vendor-neutral instrumentation |
+| Traces | Jaeger or Tempo | Distributed tracing |
+| Metrics | Prometheus | Metrics collection |
+| Logs | Loki | Log aggregation |
+| Visualization | Grafana | Unified dashboards |
+| Alerting | Alertmanager | Alert routing |
+
+## Disaster Recovery
+
+### Log Data Retention Strategy
+
+| Priority | Data Type | Retention | DR Approach |
+|----------|-----------|-----------|-------------|
+| Critical | Security logs | 7 years | Geo-replicated storage |
+| High | Application logs | 90 days | Cross-region export |
+| Medium | Debug logs | 30 days | Single region |
+| Low | Verbose traces | 7 days | No backup |
+
+### Workspace Recovery
+
+| Scenario | RTO | RPO | Recovery Steps |
+|----------|-----|-----|----------------|
+| Accidental deletion | 14 days | 0 | Soft delete recovery |
+| Region outage | 4 hours | 1 hour | Secondary workspace |
+| Data corruption | 1 hour | 15 min | Point-in-time restore |
+
+### Cross-Region Export
+
+| Method | Latency | Cost | Use Case |
+|--------|---------|------|----------|
+| Event Hub export | Near real-time | Medium | Live replication |
+| Continuous export | 5-10 min | Low | Compliance archive |
+| Query export | Manual | Low | Ad-hoc backup |
+
+## SRE Best Practices
+
+### SLI/SLO Definitions
+
+| Service | SLI | SLO Target |
+|---------|-----|------------|
+| API | Availability | 99.9% |
+| API | Latency P95 | < 200ms |
+| API | Error rate | < 0.1% |
+| Background jobs | Success rate | 99.5% |
+| Background jobs | Processing time | < 5 min |
+
+### Error Budgets
+
+| SLO | Monthly Budget | Alert Threshold |
+|-----|----------------|-----------------|
+| 99.9% availability | 43.2 min downtime | 50% burned |
+| 99.95% availability | 21.6 min downtime | 50% burned |
+| 99.99% availability | 4.3 min downtime | 25% burned |
+
+### On-Call Runbook Topics
+
+| Topic | Content |
+|-------|---------|
+| Escalation | Contact matrix by severity |
+| Triage | Decision tree for common alerts |
+| Recovery | Standard mitigation procedures |
+| Communication | Status page update process |
+| Post-mortem | Incident documentation template |
+
 ## References
 
 - [Azure Monitor Documentation](https://docs.microsoft.com/azure/azure-monitor/)
 - [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview)
 - [KQL Reference](https://docs.microsoft.com/azure/data-explorer/kusto/query/)
+- [OpenTelemetry](https://opentelemetry.io/)
+- [SRE Workbook](https://sre.google/workbook/table-of-contents/)

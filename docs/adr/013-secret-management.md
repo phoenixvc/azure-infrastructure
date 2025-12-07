@@ -190,9 +190,141 @@ For dynamic secret access:
 | PCI - Key management | HSM, key rotation |
 | GDPR - Data protection | Regional deployment, purge |
 
+## Cost Estimation
+
+### Key Vault Pricing
+
+| Tier | Operations | Secrets | Keys/Certs | HSM Keys |
+|------|------------|---------|------------|----------|
+| Standard | $0.03/10K ops | Included | $0.03/key/mo | N/A |
+| Premium | $0.03/10K ops | Included | $1/key/mo | $1/key/mo |
+
+### Monthly Cost Scenarios
+
+| Scenario | Secrets | Operations | Monthly Cost |
+|----------|---------|------------|--------------|
+| Small app | 10 | 100K | ~$5 |
+| Medium app | 50 | 1M | ~$10 |
+| Large app | 200 | 10M | ~$35 |
+| Enterprise | 500+ | 100M | ~$300+ |
+
+### Cost Optimization
+
+| Strategy | Savings | Trade-off |
+|----------|---------|-----------|
+| Cache secrets locally | 50-80% ops | Stale secrets possible |
+| Consolidate vaults | 30% | Blast radius |
+| Standard tier | 97% keys | No HSM |
+| Fewer rotations | Minimal | Security trade-off |
+
+## Multi-Cloud Alternatives
+
+### Secret Management Mapping
+
+| Azure | AWS | GCP | Self-Hosted |
+|-------|-----|-----|-------------|
+| Key Vault Secrets | Secrets Manager | Secret Manager | HashiCorp Vault |
+| Key Vault Keys | KMS | Cloud KMS | HashiCorp Vault |
+| Key Vault Certificates | ACM | Certificate Manager | cert-manager |
+| Managed HSM | CloudHSM | Cloud HSM | Luna HSM |
+
+### Feature Comparison
+
+| Feature | Key Vault | AWS Secrets | GCP Secret | HashiCorp |
+|---------|-----------|-------------|------------|-----------|
+| Auto-rotation | Partial | Yes | Partial | Yes |
+| HSM backing | Optional | Optional | Optional | Optional |
+| Versioning | Yes | Yes | Yes | Yes |
+| Cross-region | Yes | Yes | Yes | Self-managed |
+| Audit logging | Yes | Yes | Yes | Yes |
+| Dynamic secrets | No | No | No | Yes |
+
+### Multi-Cloud Secret SDK
+
+| Language | Azure | AWS | GCP | HashiCorp |
+|----------|-------|-----|-----|-----------|
+| Python | azure-keyvault | boto3 | google-cloud | hvac |
+| .NET | Azure.Security | AWSSDK | Google.Cloud | VaultSharp |
+| Node.js | @azure/keyvault | aws-sdk | @google-cloud | node-vault |
+| Go | azkeyvault | aws-sdk-go | cloud.google | vault/api |
+
+## Zero-Trust Secret Access
+
+### Identity-Based Access
+
+| Pattern | Implementation | Use Case |
+|---------|----------------|----------|
+| Workload Identity | Managed Identity | Azure services |
+| Pod Identity | Azure AD Pod Identity | Kubernetes |
+| OIDC Federation | GitHub Actions | CI/CD |
+| Service Principal | App Registration | Cross-tenant |
+
+### Secret Injection Patterns
+
+| Pattern | Method | Pros | Cons |
+|---------|--------|------|------|
+| Environment variable | Container startup | Simple | Static |
+| Volume mount | CSI driver | File-based | Complexity |
+| SDK fetch | Application code | Dynamic | Latency |
+| Sidecar | Secret agent | Transparent | Resources |
+
+## Secret Rotation Runbook
+
+### Pre-Rotation Checklist
+
+| Step | Action | Verification |
+|------|--------|--------------|
+| 1 | Identify dependent services | Service map |
+| 2 | Notify stakeholders | Communication sent |
+| 3 | Prepare new secret value | Generated/received |
+| 4 | Test in non-prod | Validation passed |
+
+### Rotation Steps
+
+| Step | Action | Rollback |
+|------|--------|----------|
+| 1 | Create new secret version | Delete version |
+| 2 | Update primary service | Revert to old version |
+| 3 | Validate functionality | Switch back |
+| 4 | Update dependent services | Revert each |
+| 5 | Disable old secret | Re-enable |
+
+### Post-Rotation
+
+| Step | Action | Timeline |
+|------|--------|----------|
+| 1 | Monitor for errors | 24 hours |
+| 2 | Audit access logs | 48 hours |
+| 3 | Delete old version | 7 days |
+| 4 | Update documentation | Same day |
+
+## Emergency Procedures
+
+### Compromised Secret Response
+
+| Step | Action | Timeline |
+|------|--------|----------|
+| 1 | Disable compromised secret | Immediate |
+| 2 | Rotate to new value | < 15 min |
+| 3 | Audit access logs | < 1 hour |
+| 4 | Notify security team | Immediate |
+| 5 | Incident report | < 24 hours |
+
+### Key Vault Outage Response
+
+| Step | Action | Fallback |
+|------|--------|----------|
+| 1 | Check Azure status | Status page |
+| 2 | Failover to secondary | Geo-replica |
+| 3 | Use cached secrets | If available |
+| 4 | Manual credential use | Emergency only |
+
 ## References
 
 - Azure Key Vault documentation
 - Key Vault best practices
 - Managed identity overview
 - Certificate management guide
+- [Key Vault Pricing](https://azure.microsoft.com/pricing/details/key-vault/)
+- [HashiCorp Vault](https://www.vaultproject.io/)
+- [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/)

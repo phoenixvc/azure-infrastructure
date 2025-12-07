@@ -135,6 +135,90 @@ Bicep scored highest for Azure-focused deployments:
 
 See `infra/` directory for the actual implementation.
 
+## Terraform Parallel Modules
+
+For teams requiring multi-cloud, maintain parallel Terraform modules:
+
+| Bicep Module | Terraform Equivalent |
+|--------------|---------------------|
+| `modules/vnet/` | `terraform/modules/network/` |
+| `modules/postgres/` | `terraform/modules/database/` |
+| `modules/key-vault/` | `terraform/modules/secrets/` |
+| `modules/container-registry/` | `terraform/modules/registry/` |
+| `modules/log-analytics/` | `terraform/modules/monitoring/` |
+
+### Multi-Cloud Provider Mapping
+
+| Azure Resource | AWS Equivalent | GCP Equivalent |
+|----------------|----------------|----------------|
+| VNet | VPC | VPC |
+| App Service | Elastic Beanstalk | App Engine |
+| Container Apps | ECS/Fargate | Cloud Run |
+| PostgreSQL Flexible | RDS PostgreSQL | Cloud SQL |
+| Key Vault | Secrets Manager | Secret Manager |
+| Storage Account | S3 | Cloud Storage |
+
+## Deployment Strategies
+
+### Blue-Green Deployment
+
+| Phase | Action |
+|-------|--------|
+| 1. Deploy Green | Create new environment alongside Blue |
+| 2. Test Green | Validate new deployment |
+| 3. Switch Traffic | Update DNS/load balancer to Green |
+| 4. Monitor | Watch for issues |
+| 5. Decommission Blue | Remove old environment after validation |
+
+### Canary Deployment
+
+| Phase | Traffic Split |
+|-------|---------------|
+| Initial | 100% to current, 0% to canary |
+| Phase 1 | 95% current, 5% canary |
+| Phase 2 | 80% current, 20% canary |
+| Phase 3 | 50% current, 50% canary |
+| Complete | 0% current, 100% new |
+
+### Rollback Strategies
+
+| Strategy | RTO | Complexity |
+|----------|-----|------------|
+| Revert commit + redeploy | 5-15 min | Low |
+| Blue-green switch back | 1-2 min | Medium |
+| Database point-in-time restore | 15-60 min | High |
+| Full environment rebuild | 30-120 min | High |
+
+## Cost Considerations
+
+### Deployment Costs
+
+| Factor | Impact | Mitigation |
+|--------|--------|------------|
+| Duplicate resources (blue-green) | +100% during deployment | Short deployment window |
+| Log retention | Ongoing | Set appropriate retention |
+| Backup storage | Ongoing | Lifecycle policies |
+| Idle dev environments | Significant | Scheduled start/stop |
+
+### Cost Optimization Flags
+
+| Parameter | Purpose |
+|-----------|---------|
+| `deployToProduction` | Skip expensive resources in dev |
+| `enableHighAvailability` | Zone redundancy only in prod |
+| `skuTier` | Burstable in dev, General in prod |
+
+## GitOps Workflow
+
+| Component | Tool | Purpose |
+|-----------|------|---------|
+| Source of truth | Git repository | Version control |
+| Change detection | GitHub Actions / ADO | Trigger on commit |
+| Validation | `az bicep build` | Syntax check |
+| Preview | `az deployment what-if` | Change preview |
+| Apply | `az deployment create` | Actual deployment |
+| Drift detection | Scheduled workflow | Detect manual changes |
+
 ## References
 
 - [Azure Bicep Documentation](https://docs.microsoft.com/azure/azure-resource-manager/bicep/)

@@ -174,8 +174,146 @@ Azure Container Apps scored highest due to:
 | Resource limits | Low | Medium | Monitor usage, request increases |
 | Feature gaps vs AKS | Medium | Low | Use AKS for complex needs |
 
+## Cost Estimation
+
+### Azure Container Apps Pricing
+
+| Component | Pricing | Notes |
+|-----------|---------|-------|
+| vCPU | ~$0.000024/vCPU-second | Active usage only |
+| Memory | ~$0.000003/GiB-second | Active usage only |
+| Requests | First 2M free, then $0.40/M | HTTP requests |
+| Idle | ~$0.0048/hour (min 0.25 vCPU) | When minReplicas > 0 |
+
+### Monthly Cost Scenarios
+
+| Workload | Config | Usage | Monthly Cost |
+|----------|--------|-------|--------------|
+| Light API | 0.25 vCPU, 0.5Gi | 8h/day active | ~$15 |
+| Standard API | 0.5 vCPU, 1Gi, min=1 | 24/7 | ~$50 |
+| Heavy API | 1 vCPU, 2Gi, 5 replicas avg | 24/7 | ~$400 |
+| Background worker | 0.25 vCPU, 0.5Gi | 2h/day | ~$5 |
+| Cron job (daily) | 0.25 vCPU, 0.5Gi | 10min/day | ~$1 |
+
+### Cost Comparison by Platform
+
+| Platform | Small App | Medium App | Large App |
+|----------|-----------|------------|-----------|
+| Container Apps | $15/mo | $50/mo | $400/mo |
+| App Service (B1) | $13/mo | $55/mo | $220/mo |
+| AKS (D2s v3 x 3) | $250/mo | $250/mo | $500/mo |
+| ACI (on-demand) | Variable | Variable | Variable |
+
+## Multi-Cloud Alternatives
+
+### Container Platform Mapping
+
+| Azure | AWS | GCP | Self-Hosted |
+|-------|-----|-----|-------------|
+| Container Apps | App Runner | Cloud Run | Knative |
+| Container Apps | ECS Fargate | Cloud Run | Kubernetes |
+| AKS | EKS | GKE | Kubernetes |
+| ACI | Fargate (standalone) | Cloud Run Jobs | Docker |
+| App Service | Elastic Beanstalk | App Engine | Docker Compose |
+
+### Feature Comparison
+
+| Feature | ACA | App Runner | Cloud Run |
+|---------|-----|------------|-----------|
+| Scale to zero | Yes | Yes | Yes |
+| Min instances | 0 | 1 | 0 |
+| Max instances | 300 | 25 | 1000 |
+| Custom domains | Yes | Yes | Yes |
+| VPC integration | Yes | Yes | Yes |
+| GPU support | No | No | Yes |
+| Dapr support | Yes | No | No |
+
+### Kubernetes Distribution Comparison
+
+| Platform | Management | Cost | Best For |
+|----------|------------|------|----------|
+| AKS | Azure managed | Control plane free | Azure ecosystem |
+| EKS | AWS managed | $72/mo/cluster | AWS ecosystem |
+| GKE | Google managed | $72/mo/cluster | Best K8s features |
+| OpenShift | Red Hat managed | Premium | Enterprise |
+| Rancher | Self-managed | License | Multi-cluster |
+
+## Disaster Recovery
+
+### High Availability Configuration
+
+| Level | Configuration | RTO | RPO |
+|-------|---------------|-----|-----|
+| Basic | minReplicas=1 | Minutes | 0 |
+| Standard | minReplicas=2, zone-redundant | Seconds | 0 |
+| Premium | Multi-region, traffic manager | Seconds | 0 |
+
+### Multi-Region Deployment
+
+| Component | Primary Region | Secondary Region |
+|-----------|----------------|------------------|
+| Container Apps | Active | Standby or Active |
+| Database | Primary | Geo-replica |
+| Storage | GRS enabled | Auto-failover |
+| DNS | Traffic Manager | Health probe based |
+
+### Failover Strategies
+
+| Strategy | Trigger | Automation |
+|----------|---------|------------|
+| Manual | Operator decision | CLI/Portal |
+| Health-based | Failed health probes | Traffic Manager |
+| Metric-based | Error rate threshold | Azure Automation |
+| Scheduled | DR drill | Runbook |
+
+### Recovery Runbook
+
+| Step | Action | Responsible |
+|------|--------|-------------|
+| 1 | Detect failure via alerts | Automated |
+| 2 | Confirm outage scope | On-call engineer |
+| 3 | Update DNS/Traffic Manager | Automated or manual |
+| 4 | Verify secondary region | On-call engineer |
+| 5 | Communicate status | Incident manager |
+| 6 | Monitor recovery | On-call engineer |
+| 7 | Post-incident review | Team |
+
+## Container Security
+
+### Image Security
+
+| Practice | Tool | Implementation |
+|----------|------|----------------|
+| Scan images | Defender for Containers | CI/CD integration |
+| Sign images | Notation/Cosign | Registry policy |
+| Base images | Microsoft CBL-Mariner | Minimal attack surface |
+| Update policy | Dependabot | Weekly updates |
+
+### Runtime Security
+
+| Control | Azure Feature | Purpose |
+|---------|---------------|---------|
+| Network isolation | VNet integration | Private networking |
+| Secrets | Key Vault references | No hardcoded secrets |
+| Identity | Managed Identity | No credentials |
+| Egress control | NSG rules | Restrict outbound |
+
+## Blue-Green Deployment
+
+| Phase | Traffic Split | Action |
+|-------|---------------|--------|
+| Deploy green | 0% to green | Create new revision |
+| Smoke test | 0% to green | Verify health |
+| Canary | 10% to green | Monitor metrics |
+| Ramp | 50% to green | Expand testing |
+| Complete | 100% to green | Full cutover |
+| Rollback | 100% to blue | If issues detected |
+
 ## References
 
 - [Azure Container Apps](https://docs.microsoft.com/azure/container-apps/)
 - [KEDA Scalers](https://keda.sh/docs/scalers/)
 - [Dapr on Container Apps](https://docs.microsoft.com/azure/container-apps/dapr-overview)
+- [Container Apps Pricing](https://azure.microsoft.com/pricing/details/container-apps/)
+- [Cloud Run](https://cloud.google.com/run)
+- [AWS App Runner](https://aws.amazon.com/apprunner/)

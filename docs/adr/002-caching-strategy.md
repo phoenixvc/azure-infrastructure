@@ -61,12 +61,111 @@ The application needs a caching layer to reduce database load, improve response 
 
 ## Cache Patterns
 
-| Pattern | Use Case |
-|---------|----------|
-| Cache-Aside | Read-through with TTL for frequently accessed data |
-| Write-Through | Immediate cache update on writes |
-| Write-Behind | Async cache update for write-heavy workloads |
-| Refresh-Ahead | Proactive cache refresh before expiration |
+| Pattern | Use Case | Consistency | Performance |
+|---------|----------|-------------|-------------|
+| Cache-Aside | Read-heavy, tolerates stale data | Eventually consistent | Excellent |
+| Write-Through | Critical data, immediate consistency | Strong | Good |
+| Write-Behind | Write-heavy, async acceptable | Eventually consistent | Excellent |
+| Refresh-Ahead | Predictable access patterns | Proactive refresh | Best |
+
+### Cache Invalidation Strategies
+
+| Strategy | When to Use | Complexity |
+|----------|-------------|------------|
+| TTL-based expiration | Most scenarios | Low |
+| Event-driven invalidation | Real-time requirements | Medium |
+| Version tagging | Multi-instance deployments | Medium |
+| Pub/Sub invalidation | Distributed caches | High |
+
+## Multi-Language Client Support
+
+| Language | Recommended Client | Async Support | Connection Pooling |
+|----------|-------------------|---------------|-------------------|
+| Python | redis-py (async) | Native async | Built-in |
+| .NET | StackExchange.Redis | Native async | Multiplexed |
+| Node.js | ioredis | Promises/async | Built-in |
+| Go | go-redis | Context-based | Built-in |
+| Java | Lettuce / Jedis | Reactive | Built-in |
+| Rust | redis-rs | Tokio async | Built-in |
+
+## Cost Estimation
+
+### Azure Cache for Redis Pricing
+
+| Tier | Size | Memory | Monthly Cost (Est.) | Use Case |
+|------|------|--------|---------------------|----------|
+| Basic C0 | 250 MB | 250 MB | ~$16 | Dev/test only |
+| Basic C1 | 1 GB | 1 GB | ~$40 | Small apps |
+| Standard C1 | 1 GB | 1 GB | ~$80 | Production (HA) |
+| Standard C2 | 2.5 GB | 2.5 GB | ~$160 | Medium workloads |
+| Premium P1 | 6 GB | 6 GB | ~$400 | VNet, clustering |
+| Enterprise E10 | 12 GB | 12 GB | ~$800 | Redis modules |
+
+*Costs vary by region; Standard includes replication*
+
+### Cost Optimization Strategies
+
+| Strategy | Savings | Trade-off |
+|----------|---------|-----------|
+| Right-size tier | 20-50% | Monitor memory usage |
+| Use Basic for dev | 50% | No HA, no SLA |
+| Data compression | Indirect | CPU overhead |
+| Key expiration | Indirect | Data may be evicted |
+| Connection pooling | Indirect | Fewer connections needed |
+
+## Multi-Cloud Alternatives
+
+| Cloud | Managed Redis | Key Differences |
+|-------|--------------|-----------------|
+| Azure | Cache for Redis | Best Azure integration |
+| AWS | ElastiCache for Redis | Cluster mode available |
+| GCP | Memorystore for Redis | Simple setup |
+| Self-hosted | Redis on Kubernetes | Full control |
+
+### Terraform Multi-Cloud
+
+| Provider | Resource Type |
+|----------|---------------|
+| Azure | `azurerm_redis_cache` |
+| AWS | `aws_elasticache_cluster` |
+| GCP | `google_redis_instance` |
+
+### Cloud-Agnostic Alternatives
+
+| Alternative | Use Case |
+|-------------|----------|
+| Redis OSS (self-hosted) | Full control, any cloud |
+| KeyDB | Redis-compatible, multi-threaded |
+| DragonflyDB | High-performance Redis alternative |
+| Memcached | Simple key-value only |
+
+## High Availability & Disaster Recovery
+
+### HA Configurations
+
+| Configuration | RTO | RPO | Cost Impact |
+|---------------|-----|-----|-------------|
+| Basic (no HA) | Hours | Data loss | Baseline |
+| Standard (replica) | Minutes | Near zero | +100% |
+| Premium (clustering) | Seconds | Near zero | +200-400% |
+| Geo-replication | Minutes | Minutes | +100% per region |
+
+### Failover Behavior
+
+| Scenario | Standard Tier | Premium Tier |
+|----------|---------------|--------------|
+| Node failure | Auto-failover (60-90s) | Auto-failover (10-30s) |
+| Zone failure | Depends on setup | Zone redundant option |
+| Region failure | Manual restore | Geo-replication failover |
+
+### Data Persistence Options
+
+| Option | Data Safety | Performance Impact |
+|--------|-------------|-------------------|
+| None (cache-only) | Data lost on restart | Best |
+| RDB snapshots | Point-in-time recovery | Minimal |
+| AOF persistence | Near-complete recovery | Some overhead |
+| RDB + AOF | Best durability | Most overhead |
 
 ## Consequences
 

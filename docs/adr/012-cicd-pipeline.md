@@ -149,9 +149,148 @@ GitHub Actions selected because:
 | Deployment to wrong environment | Low | High | Environment protection, branch rules |
 | Build time increases | Medium | Low | Caching, parallelization |
 
+## Cost Estimation
+
+### GitHub Actions Pricing
+
+| Plan | Free Minutes | Cost per Minute |
+|------|--------------|-----------------|
+| Free | 2,000/mo | N/A |
+| Team | 3,000/mo | $0.008 Linux |
+| Enterprise | 50,000/mo | $0.008 Linux |
+| Self-hosted | Unlimited | Infrastructure cost |
+
+### Monthly Cost Scenarios
+
+| Scenario | Builds/Day | Minutes/Build | Monthly Cost |
+|----------|------------|---------------|--------------|
+| Small project | 10 | 5 | Free tier |
+| Medium project | 50 | 10 | ~$80 |
+| Large project | 200 | 15 | ~$500 |
+| Enterprise | 500 | 20 | ~$1,500+ |
+
+### Cost Optimization Strategies
+
+| Strategy | Savings | Implementation |
+|----------|---------|----------------|
+| Caching dependencies | 30-50% | actions/cache |
+| Parallel jobs | 20-30% | Matrix builds |
+| Self-hosted runners | 50-80% | EC2/VM |
+| Skip unnecessary builds | 20% | Path filters |
+| Smaller base images | 10-20% | Alpine, distroless |
+
+## Multi-Cloud CI/CD Alternatives
+
+### Platform Mapping
+
+| GitHub Actions | Azure DevOps | GitLab CI | AWS | GCP |
+|----------------|--------------|-----------|-----|-----|
+| Workflows | Pipelines | .gitlab-ci.yml | CodePipeline | Cloud Build |
+| Actions | Tasks | Scripts | CodeBuild | Build steps |
+| Runners | Agents | Runners | CodeBuild | Cloud Build |
+| Environments | Stages | Environments | Stages | - |
+| Secrets | Variable Groups | Variables | Secrets Manager | Secret Manager |
+
+### Multi-Cloud Deployment Support
+
+| CI/CD Platform | Azure | AWS | GCP | Multi-Cloud |
+|----------------|-------|-----|-----|-------------|
+| GitHub Actions | Excellent | Excellent | Good | Yes |
+| Azure DevOps | Native | Good | Fair | Yes |
+| GitLab CI | Good | Good | Good | Yes |
+| Jenkins | Good | Good | Good | Yes |
+| ArgoCD | Good | Good | Good | Kubernetes-native |
+
+### Cloud-Agnostic Tools
+
+| Category | Tools | Purpose |
+|----------|-------|---------|
+| IaC Deployment | Terraform, Pulumi | Multi-cloud infra |
+| Container Deployment | Helm, Kustomize | Kubernetes apps |
+| GitOps | ArgoCD, Flux | Declarative deployments |
+| Testing | Selenium, k6 | Cross-platform tests |
+| Security | Trivy, Snyk | Universal scanning |
+
+## Advanced Deployment Patterns
+
+### Rollback Strategies
+
+| Strategy | RTO | Complexity | Use Case |
+|----------|-----|------------|----------|
+| Redeploy previous | 5-15 min | Low | Standard apps |
+| Blue-green switch | < 1 min | Medium | Zero-downtime |
+| Database rollback | 15-60 min | High | Schema changes |
+| Feature flag toggle | Instant | Low | Feature rollback |
+
+### Progressive Delivery
+
+| Stage | Traffic | Duration | Metrics to Watch |
+|-------|---------|----------|------------------|
+| Deploy | 0% | - | Build success |
+| Smoke test | 0% | 5 min | Health checks |
+| Canary | 5% | 30 min | Error rate, latency |
+| Ramp up | 25% | 1 hour | Error rate, latency |
+| Full rollout | 100% | - | All metrics |
+
+### GitOps Workflow
+
+| Component | Tool | Purpose |
+|-----------|------|---------|
+| Git repository | GitHub | Source of truth |
+| CI pipeline | GitHub Actions | Build and test |
+| CD controller | ArgoCD/Flux | Sync to cluster |
+| Config repo | Separate repo | Environment configs |
+| Secrets | Sealed Secrets | Encrypted in Git |
+
+## Security Scanning Pipeline
+
+### Scan Types
+
+| Scan Type | Tool | Stage | Blocking |
+|-----------|------|-------|----------|
+| SAST | CodeQL, Semgrep | CI | Yes (high) |
+| SCA | Dependabot, Snyk | CI | Yes (critical) |
+| Container | Trivy, Defender | CI | Yes (critical) |
+| Secrets | GitLeaks, TruffleHog | CI | Yes (all) |
+| DAST | OWASP ZAP | Post-deploy | No |
+| IaC | Checkov, tfsec | CI | Yes (high) |
+
+### Security Gates
+
+| Gate | Threshold | Action |
+|------|-----------|--------|
+| Critical vulnerabilities | 0 | Block |
+| High vulnerabilities | < 5 | Block |
+| Medium vulnerabilities | < 20 | Warn |
+| Code coverage | > 80% | Block |
+| Secrets detected | 0 | Block |
+
+## Disaster Recovery
+
+### Pipeline DR
+
+| Scenario | Recovery | RTO |
+|----------|----------|-----|
+| GitHub outage | Azure DevOps backup | 1 hour |
+| Runner failure | Self-hosted pool | 5 min |
+| Secret compromise | Rotate via Key Vault | 15 min |
+| Config corruption | Git revert | 5 min |
+
+### Business Continuity
+
+| Component | Primary | Backup |
+|-----------|---------|--------|
+| Source control | GitHub | Azure Repos mirror |
+| CI/CD | GitHub Actions | Azure DevOps |
+| Artifact storage | GitHub Packages | ACR |
+| Secrets | GitHub Secrets | Key Vault |
+
 ## References
 
 - GitHub Actions documentation
 - Azure OIDC federation setup guide
 - GitHub Environments and deployment protection
 - Azure DevOps vs GitHub Actions comparison
+- [GitHub Actions Pricing](https://github.com/pricing)
+- [ArgoCD](https://argo-cd.readthedocs.io/)
+- [GitOps Principles](https://opengitops.dev/)

@@ -161,9 +161,110 @@ This repository includes a Python (FastAPI) reference implementation. Future add
 - Node.js/NestJS reference
 - Go Chi reference
 
+## Resilience Patterns
+
+Implement these patterns regardless of framework choice:
+
+### Circuit Breaker
+
+| State | Behavior | Transition |
+|-------|----------|------------|
+| Closed | Normal operation | → Open after N failures |
+| Open | Fail fast, no calls | → Half-Open after timeout |
+| Half-Open | Allow test request | → Closed on success, Open on failure |
+
+### Retry Policy
+
+| Strategy | Use Case | Configuration |
+|----------|----------|---------------|
+| Exponential backoff | Transient failures | Base 2s, max 30s, jitter |
+| Linear retry | Network hiccups | 3 retries, 1s delay |
+| No retry | Non-idempotent ops | Fail immediately |
+
+### Timeout Hierarchy
+
+| Layer | Timeout | Purpose |
+|-------|---------|---------|
+| HTTP client | 30s | External API calls |
+| Database query | 5s | Prevent long-running queries |
+| Cache | 100ms | Fast fail to database |
+| Total request | 60s | Overall request limit |
+
+## Multi-Cloud Deployment
+
+### Compute Platform Mapping
+
+| Azure | AWS | GCP | Self-Hosted |
+|-------|-----|-----|-------------|
+| Container Apps | App Runner / ECS | Cloud Run | Kubernetes |
+| App Service | Elastic Beanstalk | App Engine | Docker Compose |
+| Functions | Lambda | Cloud Functions | OpenFaaS |
+
+### Framework Deployment Matrix
+
+| Framework | Dockerfile | Serverless | Native Cloud |
+|-----------|------------|------------|--------------|
+| FastAPI | Python slim | AWS Lambda adapter | Azure Functions |
+| ASP.NET Core | .NET runtime | AWS Lambda (.NET) | Azure Functions |
+| NestJS | Node alpine | AWS Lambda | Azure Functions |
+| Go Chi | Scratch/distroless | AWS Lambda (Go) | Cloud Functions |
+| Spring Boot | Eclipse Temurin | AWS Lambda (Java) | Azure Functions |
+
+## Cost Considerations
+
+### Compute Costs by Framework
+
+| Factor | Impact | Optimization |
+|--------|--------|--------------|
+| Cold start time | Affects serverless costs | Use provisioned concurrency |
+| Memory footprint | Per-invocation pricing | Right-size containers |
+| Execution time | Per-ms billing | Optimize hot paths |
+| Container size | Registry storage | Multi-stage builds |
+
+### Language Performance vs Cost
+
+| Language | Relative Speed | Memory Usage | Cold Start |
+|----------|---------------|--------------|------------|
+| Go | 1.0x (baseline) | Low | ~10ms |
+| .NET AOT | 1.1x | Medium | ~50ms |
+| .NET JIT | 1.2x | Medium-High | ~200ms |
+| Node.js | 2-3x | Medium | ~100ms |
+| Python | 3-5x | Medium | ~150ms |
+| Java (JIT) | 1.5x | High | ~500ms |
+| Java (GraalVM) | 1.2x | Medium | ~50ms |
+
+## Error Handling Standards
+
+### HTTP Status Code Usage
+
+| Code | Meaning | When to Use |
+|------|---------|-------------|
+| 400 | Bad Request | Validation errors |
+| 401 | Unauthorized | Missing/invalid auth |
+| 403 | Forbidden | Insufficient permissions |
+| 404 | Not Found | Resource doesn't exist |
+| 409 | Conflict | Optimistic locking failure |
+| 422 | Unprocessable Entity | Semantic validation error |
+| 429 | Too Many Requests | Rate limit exceeded |
+| 500 | Internal Server Error | Unexpected errors |
+| 502 | Bad Gateway | Upstream service failure |
+| 503 | Service Unavailable | Maintenance or overload |
+| 504 | Gateway Timeout | Upstream timeout |
+
+### Error Response Format
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `error` | string | Error code (machine-readable) |
+| `message` | string | Human-readable message |
+| `details` | array | Field-specific errors |
+| `trace_id` | string | Correlation ID for debugging |
+
 ## References
 
 - ASP.NET Core documentation
 - FastAPI documentation
 - NestJS documentation
 - TechEmpower Framework Benchmarks
+- [Polly (.NET resilience)](https://github.com/App-vNext/Polly)
+- [Tenacity (Python retry)](https://github.com/jd/tenacity)

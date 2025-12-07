@@ -201,9 +201,113 @@ Teams should select language based on:
 3. Azure service integration needs
 4. Performance requirements
 
+## Testing Framework Recommendations
+
+| Language | Unit Testing | Integration | E2E | Mocking |
+|----------|--------------|-------------|-----|---------|
+| Python | pytest | pytest-asyncio | pytest | unittest.mock |
+| .NET | xUnit, NUnit | WebApplicationFactory | Playwright | Moq, NSubstitute |
+| Node.js | Jest, Vitest | supertest | Playwright | jest.mock |
+| Go | testing | testify | go-playwright | gomock |
+| Java | JUnit 5 | Spring Test | Selenium | Mockito |
+| Rust | cargo test | - | - | mockall |
+
+## Observability Libraries
+
+| Language | Traces | Metrics | Logs |
+|----------|--------|---------|------|
+| Python | opentelemetry-python | prometheus-client | structlog |
+| .NET | OpenTelemetry.NET | App Metrics | Serilog |
+| Node.js | @opentelemetry/node | prom-client | pino |
+| Go | go.opentelemetry.io | prometheus/client | zerolog |
+| Java | opentelemetry-java | micrometer | logback |
+
+## Resilience Libraries
+
+| Language | Circuit Breaker | Retry | Timeout |
+|----------|-----------------|-------|---------|
+| Python | pybreaker, tenacity | tenacity | asyncio.timeout |
+| .NET | Polly | Polly | Polly |
+| Node.js | opossum, cockatiel | async-retry | p-timeout |
+| Go | gobreaker | avast/retry-go | context |
+| Java | resilience4j | resilience4j | resilience4j |
+
+## Cost Considerations by Language
+
+### Developer Costs (Annual Salary Range, US)
+
+| Language | Junior | Mid | Senior | Principal |
+|----------|--------|-----|--------|-----------|
+| Python | $70-90K | $100-130K | $140-170K | $180-220K |
+| .NET | $70-90K | $100-130K | $140-180K | $180-230K |
+| Node.js | $70-90K | $100-130K | $140-170K | $170-210K |
+| Go | $80-100K | $110-150K | $160-200K | $200-250K |
+| Java | $70-90K | $100-130K | $140-180K | $180-230K |
+| Rust | $90-120K | $130-170K | $180-220K | $220-280K |
+
+### Compute Cost Impact
+
+| Language | Memory Efficiency | CPU Efficiency | Cold Start |
+|----------|-------------------|----------------|------------|
+| Go | Excellent | Excellent | Excellent |
+| Rust | Excellent | Excellent | Excellent |
+| .NET AOT | Good | Excellent | Good |
+| .NET JIT | Fair | Excellent | Fair |
+| Node.js | Fair | Good | Good |
+| Python | Fair | Fair | Good |
+| Java | Poor | Good | Poor |
+
+### Serverless Cost Multiplier
+
+| Language | Relative Cost | Why |
+|----------|---------------|-----|
+| Go | 1.0x | Fastest, least memory |
+| Rust | 1.0x | Similar to Go |
+| .NET AOT | 1.2x | Slightly larger |
+| Node.js | 1.5x | More memory needed |
+| Python | 1.8x | Slower execution |
+| Java | 2.5x | High memory, slow start |
+
+## Package Manager & Build Tools
+
+| Language | Package Manager | Build Tool | Lockfile |
+|----------|-----------------|------------|----------|
+| Python | pip, poetry | setuptools, hatch | requirements.txt, poetry.lock |
+| .NET | NuGet | MSBuild, dotnet CLI | packages.lock.json |
+| Node.js | npm, pnpm, yarn | esbuild, webpack | package-lock.json |
+| Go | go mod | go build | go.sum |
+| Java | Maven, Gradle | Maven, Gradle | pom.xml, gradle.lockfile |
+| Rust | Cargo | Cargo | Cargo.lock |
+
+## Container Image Sizes
+
+| Language | Base Image | Minimal Size | Typical App |
+|----------|------------|--------------|-------------|
+| Go | scratch | 5-15 MB | 20-50 MB |
+| Rust | scratch | 5-15 MB | 20-50 MB |
+| .NET AOT | distroless | 30-50 MB | 50-100 MB |
+| .NET | mcr.microsoft.com | 200-300 MB | 250-400 MB |
+| Node.js | node:alpine | 100-150 MB | 200-400 MB |
+| Python | python:slim | 100-150 MB | 200-500 MB |
+| Java | eclipse-temurin | 300-500 MB | 400-800 MB |
+
+## IDE & Tooling Support
+
+| Language | Primary IDE | LSP Quality | Debugging |
+|----------|-------------|-------------|-----------|
+| Python | VS Code, PyCharm | Excellent (Pylance) | Excellent |
+| .NET | Visual Studio, Rider | Excellent (OmniSharp) | Excellent |
+| Node.js | VS Code | Excellent | Excellent |
+| Go | VS Code, GoLand | Excellent (gopls) | Good |
+| Java | IntelliJ, VS Code | Excellent | Excellent |
+| Rust | VS Code, RustRover | Good (rust-analyzer) | Good |
+
 ## References
 
 - Azure SDK documentation (all languages)
 - TechEmpower Framework Benchmarks
 - Stack Overflow Developer Survey
 - Azure Functions language support matrix
+- [OpenTelemetry](https://opentelemetry.io/)
+- [Polly (.NET)](https://github.com/App-vNext/Polly)
+- [Tenacity (Python)](https://github.com/jd/tenacity)

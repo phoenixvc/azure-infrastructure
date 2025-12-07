@@ -128,6 +128,71 @@ API Key as primary authentication:
 | Use per-client keys | Enable granular revocation |
 | Development mode | Allow disabling for local testing |
 
+## Multi-Language Auth Libraries
+
+| Language | API Key | JWT Validation | Azure AD |
+|----------|---------|----------------|----------|
+| Python | Custom middleware | python-jose, PyJWT | msal |
+| .NET | Custom middleware | Microsoft.Identity.Web | MSAL.NET |
+| Node.js | Custom middleware | jsonwebtoken | @azure/msal-node |
+| Go | Custom middleware | golang-jwt | microsoft-authentication-library-for-go |
+| Java | Custom filter | jjwt | msal4j |
+
+## Rate Limiting Patterns
+
+| Pattern | Implementation | Use Case |
+|---------|----------------|----------|
+| Fixed window | Count per time period | Simple rate limiting |
+| Sliding window | Rolling time window | Smoother limiting |
+| Token bucket | Refill tokens over time | Burst handling |
+| Leaky bucket | Fixed drain rate | Traffic shaping |
+
+### Rate Limit Headers
+
+| Header | Purpose |
+|--------|---------|
+| `X-RateLimit-Limit` | Maximum requests per window |
+| `X-RateLimit-Remaining` | Requests remaining |
+| `X-RateLimit-Reset` | Window reset timestamp |
+| `Retry-After` | Seconds until next request allowed |
+
+## OAuth 2.0 / OpenID Connect Flows
+
+| Flow | Use Case | Security |
+|------|----------|----------|
+| Client Credentials | Service-to-service | High (no user) |
+| Authorization Code + PKCE | Web/mobile apps | High |
+| Device Code | CLI tools, IoT | Medium |
+| Implicit (deprecated) | Legacy SPAs | Low (avoid) |
+
+## Multi-Cloud Identity Providers
+
+| Provider | Primary Use | Integration |
+|----------|-------------|-------------|
+| Azure AD / Entra ID | Microsoft ecosystem | Native |
+| AWS Cognito | AWS ecosystem | JWT validation |
+| Google Identity | GCP ecosystem | OAuth/OIDC |
+| Auth0 | Cloud-agnostic | JWT validation |
+| Keycloak | Self-hosted | OAuth/OIDC |
+| Okta | Enterprise SSO | OAuth/OIDC |
+
+### Terraform Multi-Cloud Auth Resources
+
+| Provider | Identity Resource |
+|----------|------------------|
+| Azure | `azurerm_user_assigned_identity` |
+| AWS | `aws_iam_role` |
+| GCP | `google_service_account` |
+
+## Security Compliance
+
+| Requirement | Implementation |
+|-------------|----------------|
+| OWASP API Security | Rate limiting, input validation |
+| SOC2 | Audit logging, key rotation |
+| GDPR | Token expiration, consent |
+| PCI-DSS | Strong auth, encryption |
+
 ## References
 
 - [API Security Best Practices](https://owasp.org/www-project-api-security/)

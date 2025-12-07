@@ -82,6 +82,128 @@ Azure Service Bus scored highest due to:
 | High-throughput streaming | Event Hubs |
 | Simple, low-cost queuing | Storage Queues |
 
+## Multi-Language SDK Support
+
+| Language | Service Bus Client | Async Support | Batch Processing |
+|----------|-------------------|---------------|------------------|
+| Python | azure-servicebus | Native async | Yes |
+| .NET | Azure.Messaging.ServiceBus | Native async | Yes |
+| Node.js | @azure/service-bus | Promises/async | Yes |
+| Go | azservicebus | Context-based | Yes |
+| Java | azure-messaging-servicebus | Reactive | Yes |
+
+## Cost Estimation
+
+### Azure Service Bus Pricing
+
+| Tier | Base Cost | Per Million Messages | Max Message Size |
+|------|-----------|---------------------|------------------|
+| Basic | ~$0.05/hr | $0.05 | 256 KB |
+| Standard | ~$10/month | $0.80 (first 13M free) | 256 KB |
+| Premium (1 MU) | ~$700/month | Included | 100 MB |
+
+### Monthly Cost Examples
+
+| Workload | Tier | Messages/Month | Est. Monthly Cost |
+|----------|------|----------------|-------------------|
+| Dev/test | Basic | 100K | ~$5 |
+| Small app | Standard | 5M | ~$15 |
+| Medium app | Standard | 50M | ~$45 |
+| Enterprise | Premium 1MU | Unlimited* | ~$700 |
+
+*Premium includes unlimited operations within capacity
+
+### Cost Optimization Strategies
+
+| Strategy | Savings | Trade-off |
+|----------|---------|-----------|
+| Batch messages | 50-80% | Increased latency |
+| Use sessions wisely | Indirect | Session limits |
+| Right-size Premium MUs | 30-50% | Capacity planning |
+| Use Storage Queues for simple needs | 90% | Limited features |
+
+## Multi-Cloud Alternatives
+
+| Cloud | Managed Message Queue | Key Differences |
+|-------|----------------------|-----------------|
+| Azure | Service Bus | Best enterprise features |
+| AWS | SQS + SNS | Simpler, cheaper |
+| GCP | Pub/Sub | Global by default |
+| Self-hosted | RabbitMQ / Kafka | Full control |
+
+### Terraform Multi-Cloud
+
+| Provider | Resource Type |
+|----------|---------------|
+| Azure | `azurerm_servicebus_namespace` |
+| AWS | `aws_sqs_queue` + `aws_sns_topic` |
+| GCP | `google_pubsub_topic` |
+
+### Cloud-Agnostic Alternatives
+
+| Alternative | Best For | Trade-off |
+|-------------|----------|-----------|
+| Apache Kafka | High-throughput streaming | Operational complexity |
+| RabbitMQ | Flexible routing | Self-managed |
+| NATS | Low-latency, lightweight | Fewer enterprise features |
+| Apache Pulsar | Multi-tenancy | Newer, smaller community |
+
+## Distributed Patterns
+
+### Saga Pattern (Choreography)
+
+| Step | Description | Compensation |
+|------|-------------|--------------|
+| 1 | Order created → Publish OrderCreated | Cancel order |
+| 2 | Inventory reserved → Publish InventoryReserved | Release inventory |
+| 3 | Payment processed → Publish PaymentCompleted | Refund payment |
+| 4 | Order confirmed | N/A (success) |
+
+### Saga Pattern (Orchestration)
+
+| Component | Responsibility |
+|-----------|----------------|
+| Saga Orchestrator | Coordinates all steps |
+| Step Executors | Perform individual actions |
+| Compensation Handlers | Rollback on failure |
+| State Store | Track saga progress |
+
+### Retry and Circuit Breaker
+
+| Pattern | Use Case | Configuration |
+|---------|----------|---------------|
+| Immediate retry | Transient failures | 3 attempts, no delay |
+| Exponential backoff | Rate limiting | 1s, 2s, 4s, 8s |
+| Circuit breaker | Prevent cascade | Open after 5 failures |
+| Dead letter | Poison messages | After max retries |
+
+### Event Sourcing Considerations
+
+| Aspect | Recommendation |
+|--------|----------------|
+| Event Store | Service Bus + Blob Storage or Event Hubs |
+| Projections | Separate read models |
+| Snapshots | Periodic state capture |
+| Replay | Support event replay for new projections |
+
+## High Availability & Disaster Recovery
+
+### HA Configurations
+
+| Configuration | RTO | RPO | Cost Impact |
+|---------------|-----|-----|-------------|
+| Standard (single region) | Hours | Near zero | Baseline |
+| Premium (zone redundant) | Minutes | Near zero | +100% |
+| Geo-DR (paired regions) | Minutes | Minutes | +100% |
+
+### Geo-Disaster Recovery
+
+| Scenario | Action | Data Impact |
+|----------|--------|-------------|
+| Primary failure | Manual failover to secondary | Possible message loss |
+| Planned failover | Sync then switch | No data loss |
+| Recovery | Fail back when primary ready | Resync required |
+
 ## Consequences
 
 ### Positive
