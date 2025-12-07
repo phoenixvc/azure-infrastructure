@@ -1,0 +1,111 @@
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Python dependencies (if any Python tooling)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    ignore:
+      # Ignore major version updates for stable dependencies
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # Docker (if using Docker in examples)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # npm (for Node.js examples)
+  - package-ecosystem: "npm"
+    directory: "/examples/nodejs-postgres"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "nodejs"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    versioning-strategy: increase
+
+  # NuGet (for .NET examples)
+  - package-ecosystem: "nuget"
+    directory: "/examples/dotnet-sqlserver"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "dotnet"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Go modules (for Go examples)
+  - package-ecosystem: "gomod"
+    directory: "/examples/go-redis"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "golang"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Maven (for Spring Boot examples)
+  - package-ecosystem: "maven"
+    directory: "/examples/spring-mysql"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "java"
+    commit-message:
+      prefix: "chore"
+      include: "scope"

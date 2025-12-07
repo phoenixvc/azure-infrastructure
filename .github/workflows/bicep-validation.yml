@@ -1,0 +1,41 @@
+name: Bicep Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'infra/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'infra/**'
+
+jobs:
+  validate:
+    name: Validate Bicep
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Setup Bicep
+        run: |
+          az bicep install
+          az bicep version
+      
+      - name: Lint Bicep files
+        run: |
+          az bicep build --file infra/main.bicep
+      
+      - name: Validate Bicep (What-If)
+        if: github.event_name == 'pull_request'
+        run: |
+          az deployment sub what-if \
+            --location westeurope \
+            --template-file infra/main.bicep \
+            --parameters infra/parameters/dev.bicepparam

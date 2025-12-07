@@ -1,23 +1,66 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-env/
-.venv
+# Bicep
+*.bicep.json
+
+# Azure
+*.azureauth
+.azure/
+
+# Terraform (if used alongside)
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
 
 # IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.DS_Store
+
+# Environment Variables
+.env
+.env.local
+*.env
+
+# Secrets
+secrets/
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
 
 # OS
-.DS_Store
 Thumbs.db
+Desktop.ini
+.Spotlight-V100
+.Trashes
 
-# Azure
-*.parameters.json
-!*.parameters.example.json
+# Temporary Files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Logs
+logs/
+*.log
+
+# Local Configuration
+local_settings.json
+config.local.json
+
+# Deployment
+deploy/
+*.zip
+
+# ARM Templates (generated)
+*.json
+!parameters/*.json
+!schemas/*.json
+
+# Node modules (if using Bicep with npm tools)
+node_modules/
