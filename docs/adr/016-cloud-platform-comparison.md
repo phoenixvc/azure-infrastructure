@@ -106,9 +106,10 @@ This ADR serves two purposes:
 | Terraform Modules | 8 | Multi-cloud infrastructure components |
 | ADRs | 16 | Architecture decision documentation |
 | Python API | 1 | FastAPI reference implementation |
+| .NET API | 1 | ASP.NET Core 8 reference implementation |
 | Test Suites | 4 | Unit, integration, e2e, load tests |
 | Abstractions | 4 | Database, cache, messaging, storage interfaces |
-| Resilience Patterns | 3 | Circuit breaker, retry, timeout |
+| Resilience Patterns | 3 | Circuit breaker, retry, timeout (both Python & .NET) |
 | CI/CD Workflows | 8 | Validation, testing, deployment |
 | Dev Container | 1 | GitHub Codespaces / VS Code dev environment |
 
@@ -235,18 +236,20 @@ This ADR serves two purposes:
 10. ✅ Add resilience patterns (circuit breaker, retry, timeout)
 11. ✅ Add Terraform parallel modules (8 modules)
 12. ✅ Create GitHub Codespaces devcontainer
+13. ✅ Create .NET reference implementation (ASP.NET Core 8)
 
 ### Short-term (Next Sprint)
 
 1. Add cost estimation tooling
 2. Add pre-commit hooks configuration
 3. Add integration test coverage
+4. Add .NET unit tests
 
 ### Medium-term (Next Quarter)
 
-1. Create .NET reference implementation
-2. Create multi-region deployment guide
-3. Add event sourcing / CQRS patterns
+1. Create multi-region deployment guide
+2. Add event sourcing / CQRS patterns
+3. Add Node.js/TypeScript reference implementation
 
 ## Consequences
 
