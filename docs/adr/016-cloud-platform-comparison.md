@@ -102,11 +102,12 @@ This ADR serves two purposes:
 
 | Component | Count | Purpose |
 |-----------|-------|---------|
-| Bicep Modules | 13 | Reusable infrastructure components |
+| Bicep Modules | 16 | Reusable infrastructure components |
 | ADRs | 16 | Architecture decision documentation |
 | Python API | 1 | FastAPI reference implementation |
 | Test Suites | 4 | Unit, integration, e2e, load tests |
-| Abstractions | 3 | Database, cache, messaging interfaces |
+| Abstractions | 4 | Database, cache, messaging, storage interfaces |
+| Resilience Patterns | 3 | Circuit breaker, retry, timeout |
 | CI/CD Workflows | 3 | Validation, testing, deployment |
 
 ### SWOT Analysis
@@ -197,14 +198,14 @@ This ADR serves two purposes:
 | Storage abstraction | Code | High | ✅ Completed |
 | Container Apps Bicep module | Infra | High | ✅ Completed |
 | Container Apps Jobs module | Infra | High | ✅ Completed |
-| Notification Hubs module | Infra | Medium | Pending |
-| API Management module | Infra | Medium | Pending |
-| Front Door / CDN module | Infra | Medium | Pending |
+| Notification Hubs module | Infra | Medium | ✅ Completed |
+| API Management module | Infra | Medium | ✅ Completed |
+| Front Door / CDN module | Infra | Medium | ✅ Completed |
 | Terraform equivalents | Infra | Medium | Pending |
-| OpenTelemetry integration | Code | Medium | Pending |
-| Rate limiting middleware | Code | Low | Pending |
-| Circuit breaker pattern | Code | Low | Pending |
-| Retry policies | Code | Low | Pending |
+| OpenTelemetry integration | Code | Medium | ✅ Completed |
+| Rate limiting middleware | Code | Low | ✅ Completed |
+| Circuit breaker pattern | Code | Low | ✅ Completed |
+| Retry policies | Code | Low | ✅ Completed |
 
 ### Architecture Gaps
 
@@ -222,21 +223,26 @@ This ADR serves two purposes:
 
 1. ✅ Add mobile ADR (ADR-015)
 2. ✅ Add cloud comparison ADR (ADR-016)
-3. Add storage abstraction interface
+3. ✅ Add storage abstraction interface
+4. ✅ Add Container Apps Bicep modules (app + job)
+5. ✅ Add Notification Hubs Bicep module
+6. ✅ Add API Management Bicep module
+7. ✅ Add Front Door / CDN Bicep module
+8. ✅ Add OpenTelemetry instrumentation
+9. ✅ Add rate limiting middleware
+10. ✅ Add resilience patterns (circuit breaker, retry, timeout)
 
 ### Short-term (Next Sprint)
 
-1. Add Container Apps Bicep module
-2. Add OpenTelemetry instrumentation
-3. Add rate limiting middleware
-4. Create GitHub Codespaces devcontainer
+1. Create GitHub Codespaces devcontainer
+2. Add Terraform parallel modules
+3. Add cost estimation tooling
 
 ### Medium-term (Next Quarter)
 
 1. Create .NET reference implementation
-2. Add Terraform parallel modules
-3. Add cost estimation tooling
-4. Create multi-region deployment guide
+2. Create multi-region deployment guide
+3. Add event sourcing / CQRS patterns
 
 ## Consequences
 

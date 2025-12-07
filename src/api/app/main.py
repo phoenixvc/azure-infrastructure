@@ -8,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
 from .routers import health_router, items_router
+from .observability import init_telemetry, instrument_fastapi
+from .middleware.rate_limit import configure_rate_limiting
 
 # Configure logging
 logging.basicConfig(
@@ -27,6 +29,16 @@ async def lifespan(app: FastAPI):
     settings = get_settings()
     logger.info(f"App: {settings.app_name} v{settings.app_version}")
     logger.info(f"Debug mode: {settings.debug}")
+
+    # Initialize OpenTelemetry
+    init_telemetry(
+        service_name=settings.app_name,
+        service_version=settings.app_version,
+        app_insights_connection_string=settings.applicationinsights_connection_string,
+        enable_console_export=settings.debug,
+    )
+    instrument_fastapi(app)
+    logger.info("OpenTelemetry instrumentation enabled")
 
     # Initialize database if configured
     if is_database_configured():
@@ -64,6 +76,12 @@ def create_app() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+    )
+
+    # Configure rate limiting
+    configure_rate_limiting(
+        app,
+        default_limits=["100/minute", "1000/hour"],
     )
 
     # Register routers with API versioning
