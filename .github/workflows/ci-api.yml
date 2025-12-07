@@ -1,0 +1,40 @@
+name: CI - API
+
+on:
+push:
+  branches: [main, develop]
+  paths:
+    - 'src/api/**'
+pull_request:
+  branches: [main, develop]
+  paths:
+    - 'src/api/**'
+
+jobs:
+test:
+  runs-on: ubuntu-latest
+  name: Test API
+  
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        cd src/api
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+    
+    - name: Run tests
+      run: |
+        pytest tests/unit/ -v --cov=src/api
+    
+    - name: Build Docker image
+      run: |
+        cd src/api
+        docker build -t api:${{ github.sha }} .

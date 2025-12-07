@@ -1,0 +1,13 @@
+// Azure Resource Graph Query: Naming Compliance Check
+// Returns resources that don't follow phoenixvc naming conventions
+
+Resources
+| where type !in ('microsoft.resources/subscriptions', 'microsoft.resources/subscriptions/resourcegroups')
+| extend nameParts = split(name, '-')
+| extend org = tostring(nameParts[0])
+| extend env = tostring(nameParts[1])
+| extend project = tostring(nameParts[2])
+| where org !in ('nl', 'pvc', 'tws', 'mys')
+ or env !in ('dev', 'staging', 'prod')
+| project name, type, resourceGroup, location, org, env, project
+| order by name asc

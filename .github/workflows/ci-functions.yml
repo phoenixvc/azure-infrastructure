@@ -1,0 +1,35 @@
+name: CI - Functions
+
+on:
+push:
+  branches: [main, develop]
+  paths:
+    - 'src/functions/**'
+pull_request:
+  branches: [main, develop]
+  paths:
+    - 'src/functions/**'
+
+jobs:
+test:
+  runs-on: ubuntu-latest
+  name: Test Functions
+  
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        cd src/functions
+        pip install -r requirements.txt
+        pip install pytest
+    
+    - name: Run tests
+      run: |
+        pytest tests/unit/ -v

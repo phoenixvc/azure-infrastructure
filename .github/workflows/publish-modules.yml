@@ -1,0 +1,67 @@
+name: Publish Bicep Modules
+
+on:
+push:
+  branches:
+    - main
+  paths:
+    - 'infra/modules/**'
+workflow_dispatch:
+
+env:
+REGISTRY: phoenixvcacr.azurecr.io
+MODULE_VERSION: v2.1
+
+jobs:
+publish:
+  runs-on: ubuntu-latest
+  name: Publish Modules to ACR
+  
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Publish naming module
+      run: |
+        az bicep publish \
+          --file infra/modules/naming/main.bicep \
+          --target "br:${{ env.REGISTRY }}/infra/modules/naming:${{ env.MODULE_VERSION }}"
+    
+    - name: Publish app-service module
+      run: |
+        az bicep publish \
+          --file infra/modules/app-service/main.bicep \
+          --target "br:${{ env.REGISTRY }}/infra/modules/app-service:${{ env.MODULE_VERSION }}"
+    
+    - name: Publish function-app module
+      run: |
+        az bicep publish \
+          --file infra/modules/function-app/main.bicep \
+          --target "br:${{ env.REGISTRY }}/infra/modules/function-app:${{ env.MODULE_VERSION }}"
+    
+    - name: Publish postgres module
+      run: |
+        az bicep publish \
+          --file infra/modules/postgres/main.bicep \
+          --target "br:${{ env.REGISTRY }}/infra/modules/postgres:${{ env.MODULE_VERSION }}"
+    
+    - name: Publish storage module
+      run: |
+        az bicep publish \
+          --file infra/modules/storage/main.bicep \
+          --target "br:${{ env.REGISTRY }}/infra/modules/storage:${{ env.MODULE_VERSION }}"
+    
+    - name: Publish key-vault module
+      run: |
+        az bicep publish \
+          --file infra/modules/key-vault/main.bicep \
+          --target "br:${{ env.REGISTRY }}/infra/modules/key-vault:${{ env.MODULE_VERSION }}"
+    
+    - name: Summary
+      run: |
+        echo "✅ All modules published to ${{ env.REGISTRY }}"
