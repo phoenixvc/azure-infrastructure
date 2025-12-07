@@ -102,13 +102,15 @@ This ADR serves two purposes:
 
 | Component | Count | Purpose |
 |-----------|-------|---------|
-| Bicep Modules | 16 | Reusable infrastructure components |
+| Bicep Modules | 18 | Reusable Azure infrastructure components |
+| Terraform Modules | 8 | Multi-cloud infrastructure components |
 | ADRs | 16 | Architecture decision documentation |
 | Python API | 1 | FastAPI reference implementation |
 | Test Suites | 4 | Unit, integration, e2e, load tests |
 | Abstractions | 4 | Database, cache, messaging, storage interfaces |
 | Resilience Patterns | 3 | Circuit breaker, retry, timeout |
-| CI/CD Workflows | 3 | Validation, testing, deployment |
+| CI/CD Workflows | 8 | Validation, testing, deployment |
+| Dev Container | 1 | GitHub Codespaces / VS Code dev environment |
 
 ### SWOT Analysis
 
@@ -201,7 +203,7 @@ This ADR serves two purposes:
 | Notification Hubs module | Infra | Medium | ✅ Completed |
 | API Management module | Infra | Medium | ✅ Completed |
 | Front Door / CDN module | Infra | Medium | ✅ Completed |
-| Terraform equivalents | Infra | Medium | Pending |
+| Terraform equivalents | Infra | Medium | ✅ Completed |
 | OpenTelemetry integration | Code | Medium | ✅ Completed |
 | Rate limiting middleware | Code | Low | ✅ Completed |
 | Circuit breaker pattern | Code | Low | ✅ Completed |
@@ -231,12 +233,14 @@ This ADR serves two purposes:
 8. ✅ Add OpenTelemetry instrumentation
 9. ✅ Add rate limiting middleware
 10. ✅ Add resilience patterns (circuit breaker, retry, timeout)
+11. ✅ Add Terraform parallel modules (8 modules)
+12. ✅ Create GitHub Codespaces devcontainer
 
 ### Short-term (Next Sprint)
 
-1. Create GitHub Codespaces devcontainer
-2. Add Terraform parallel modules
-3. Add cost estimation tooling
+1. Add cost estimation tooling
+2. Add pre-commit hooks configuration
+3. Add integration test coverage
 
 ### Medium-term (Next Quarter)
 
