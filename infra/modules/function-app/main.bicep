@@ -26,6 +26,9 @@ param runtimeVersion string = '3.11'
 @description('Log Analytics Workspace ID for diagnostics')
 param logAnalyticsWorkspaceId string
 
+@description('Application Insights connection string (optional)')
+param appInsightsConnectionString string = ''
+
 @description('Tags to apply to resources')
 param tags object = {}
 
@@ -97,8 +100,8 @@ properties: {
         value: runtime
       }
       {
-        name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-        value: ''
+        name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+        value: appInsightsConnectionString
       }
     ]
   }

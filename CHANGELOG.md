@@ -9,9 +9,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [1.1.0] - 2025-12-07
+
 ### Added
-- Initial infrastructure modules
-- Comprehensive documentation
+
+- **New Bicep Modules**
+  - Virtual Network module (`infra/modules/vnet/`) with NSGs, subnets, and DDoS protection
+  - Container Registry module (`infra/modules/container-registry/`) with RBAC and retention policies
+  - Log Analytics module (`infra/modules/log-analytics/`) with Application Insights integration
+
+- **Main Orchestrator**
+  - Complete `main.bicep` orchestrator that composes all modules
+  - Environment-specific parameter files:
+    - `main.dev.bicepparam` - Development configuration
+    - `main.staging.bicepparam` - Staging configuration
+    - `main.prod.bicepparam` - Production configuration
+
+- **API Implementation**
+  - Complete FastAPI application in `src/api/app/`
+  - Health check endpoints (`/health`, `/health/ready`, `/health/live`)
+  - Items CRUD endpoints with full validation
+  - Configuration management with Pydantic Settings
+  - Pydantic models for request/response validation
+
+- **Test Suite**
+  - Unit tests (`tests/unit/`)
+    - Health endpoint tests
+    - Items CRUD tests
+    - Model validation tests
+    - Configuration tests
+  - Integration tests (`tests/integration/`)
+    - API integration tests
+    - Database integration tests (mock-based)
+    - Storage integration tests (mock-based)
+  - E2E tests (`tests/e2e/`)
+    - Complete user workflow tests
+    - API discovery workflow tests
+    - Error handling workflow tests
+    - Performance tests
+    - Reliability tests
+  - Pytest configuration with markers and coverage
+
+### Changed
+- Updated module structure to follow consistent patterns
+- Enhanced documentation for all modules
 
 ---
 
@@ -104,6 +147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Description |
 |---------|------|-------------|
+| 1.1.0 | 2025-12-07 | Added VNet, ACR, Log Analytics modules, main orchestrator, tests |
 | 1.0.0 | 2025-12-07 | Initial release |
 
 ---
@@ -138,5 +182,6 @@ When making changes, add entries under `[Unreleased]` in the appropriate categor
 
 ---
 
-[Unreleased]: https://github.com/phoenixvc/azure-infrastructure/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/phoenixvc/azure-infrastructure/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/phoenixvc/azure-infrastructure/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/phoenixvc/azure-infrastructure/releases/tag/v1.0.0
