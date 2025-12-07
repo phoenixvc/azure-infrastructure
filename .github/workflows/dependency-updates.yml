@@ -1,0 +1,33 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Weekly on Monday
+  workflow_dispatch:
+
+jobs:
+  update-dependencies:
+    name: Check for Updates
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install pip-audit
+        run: pip install pip-audit
+      
+      - name: Audit dependencies
+        run: |
+          cd src/api
+          pip-audit -r requirements.txt || true
+      
+      - name: Check for outdated packages
+        run: |
+          cd src/api
+          pip install -r requirements.txt
+          pip list --outdated
