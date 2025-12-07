@@ -130,6 +130,7 @@ All modules published to: `br:phoenixvcacr.azurecr.io/infra/modules/{module}:v2.
 | `function-app` | Azure Functions with storage | [README](infra/modules/function-app/README.md) |
 | `postgres` | PostgreSQL Flexible Server | [README](infra/modules/postgres/README.md) |
 | `storage` | Storage Account with containers | [README](infra/modules/storage/README.md) |
+| `static-web-app` | Static Web App with GitHub CI/CD | [README](infra/modules/static-web-app/README.md) |
 | `key-vault` | Key Vault with access policies | [README](infra/modules/key-vault/README.md) |
 
 ---
@@ -230,3 +231,4 @@ MIT License - See [LICENSE](LICENSE)
 
 **Version:** v2.1  
 **Last Updated:** 2025-12-07
+
