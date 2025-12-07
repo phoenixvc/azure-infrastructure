@@ -20,12 +20,21 @@ This directory contains Architecture Decision Records for the Azure Infrastructu
 | [ADR-012](012-cicd-pipeline.md) | CI/CD Pipeline Strategy | Accepted | DevOps |
 | [ADR-013](013-secret-management.md) | Secret Management | Accepted | Security |
 | [ADR-014](014-programming-language.md) | Programming Language & Runtime | Accepted | Foundation |
+| [ADR-015](015-mobile-development.md) | Mobile Development Strategy | Accepted | Client |
+| [ADR-016](016-cloud-platform-comparison.md) | Cloud Platform Comparison & SWOT | Accepted | Strategic |
 
 ## Categories
+
+### Strategic
+- Cloud Platform Comparison (Azure vs AWS vs GCP)
+- Project SWOT Analysis & Retrospective
 
 ### Foundation
 - Programming Language & Runtime Selection (multi-language evaluation)
 - API Framework Selection (language-specific frameworks)
+
+### Client Layer
+- Mobile Development (Flutter, React Native, Native)
 
 ### Application Layer
 - AI Integration (Azure OpenAI, AI Foundry)
