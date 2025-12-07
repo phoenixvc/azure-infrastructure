@@ -1,0 +1,42 @@
+# CODEOWNERS file for azure-infrastructure
+# These owners will be automatically requested for review when someone opens a pull request
+
+# Default owners for everything in the repo
+* @phoenixvc
+
+# Infrastructure modules
+/infra/modules/ @phoenixvc
+/infra/modules/app-service/ @phoenixvc
+/infra/modules/postgres/ @phoenixvc
+/infra/modules/key-vault/ @phoenixvc
+/infra/modules/storage/ @phoenixvc
+/infra/modules/static-web-app/ @phoenixvc
+/infra/modules/function-app/ @phoenixvc
+/infra/modules/naming/ @phoenixvc
+
+# Main infrastructure files
+/infra/main.bicep @phoenixvc
+/infra/parameters/ @phoenixvc
+
+# Documentation
+/docs/ @phoenixvc
+*.md @phoenixvc
+
+# CI/CD workflows
+/.github/workflows/ @phoenixvc
+
+# Examples - can be assigned to specific team members
+/examples/fastapi-postgres/ @phoenixvc
+/examples/flask-mongodb/ @phoenixvc
+/examples/dotnet-sqlserver/ @phoenixvc
+/examples/nodejs-postgres/ @phoenixvc
+/examples/go-redis/ @phoenixvc
+/examples/python-dynamodb/ @phoenixvc
+/examples/spring-mysql/ @phoenixvc
+
+# Source code
+/src/ @phoenixvc
+
+# Security-sensitive files require additional review
+/SECURITY.md @phoenixvc
+/.github/workflows/deploy.yml @phoenixvc
