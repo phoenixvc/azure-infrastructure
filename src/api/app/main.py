@@ -20,16 +20,26 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler for startup/shutdown events."""
+    from .database import init_db, close_db, is_database_configured
+
     # Startup
     logger.info("Starting application...")
     settings = get_settings()
     logger.info(f"App: {settings.app_name} v{settings.app_version}")
     logger.info(f"Debug mode: {settings.debug}")
 
+    # Initialize database if configured
+    if is_database_configured():
+        await init_db()
+    else:
+        logger.info("No database configured, using in-memory storage")
+
     yield
 
     # Shutdown
     logger.info("Shutting down application...")
+    if is_database_configured():
+        await close_db()
 
 
 def create_app() -> FastAPI:

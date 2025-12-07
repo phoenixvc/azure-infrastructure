@@ -1,5 +1,6 @@
 """Health check endpoints."""
 
+import logging
 from datetime import datetime
 
 from fastapi import APIRouter
@@ -8,6 +9,28 @@ from ..config import get_settings
 from ..models import HealthResponse
 
 router = APIRouter(prefix="/health", tags=["Health"])
+logger = logging.getLogger(__name__)
+
+
+async def check_database_health() -> str:
+    """Check database connectivity."""
+    from ..database import is_database_configured, get_engine
+    from sqlalchemy import text
+
+    if not is_database_configured():
+        return "not configured"
+
+    engine = get_engine()
+    if engine is None:
+        return "not initialized"
+
+    try:
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+        return "connected"
+    except Exception as e:
+        logger.error(f"Database health check failed: {e}")
+        return "error"
 
 
 @router.get("", response_model=HealthResponse)
@@ -21,7 +44,7 @@ async def health_check() -> HealthResponse:
     settings = get_settings()
 
     # Check database connectivity
-    db_status = "connected" if settings.database_url else "not configured"
+    db_status = await check_database_health()
 
     # Check storage connectivity
     storage_status = (
@@ -44,7 +67,11 @@ async def readiness_check() -> dict:
 
     Returns 200 if the application is ready to receive traffic.
     """
-    return {"ready": True}
+    # Check if database is ready (if configured)
+    db_status = await check_database_health()
+    db_ready = db_status in ("connected", "not configured")
+
+    return {"ready": db_ready}
 
 
 @router.get("/live")
