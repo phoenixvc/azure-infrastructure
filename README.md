@@ -1,47 +1,83 @@
-# Azure Infrastructure Standards
+# Azure Project Template
 
-Unified Azure infrastructure standards, modules, and tooling.
-
-## Organizations
-- **nl** - NeuralLiquid (Jurie)
-- **pvc** - Phoenix VC (Eben)
-- **tws** - Twines & Straps (Martyn)
-- **mys** - Mystira (Eben)
+Production-ready Azure project template with multiple architecture options.
 
 ## Quick Start
 
-### Validate Names
+### 1. Create from Template
 \\\ash
-pip install -r tools/validator/requirements.txt
-python tools/validator/nl_az_name.py validate nl-prod-rooivalk-api-euw
+gh repo create myorg/my-project --template phoenixvc/azure-project-template --public --clone
+cd my-project
 \\\
 
-### Use Bicep Modules
-\\\icep
-module naming 'infra/modules/naming/main.bicep' = {
-  params: {
-    org: 'nl'
-    env: 'prod'
-    project: 'rooivalk'
-    region: 'euw'
-  }
-}
+### 2. Choose Architecture
+\\\ash
+# Standard (fast development)
+cp -r src/api-standard src/api
+
+# OR Hexagonal (clean architecture)
+cp -r src/api-hexagonal src/api
+
+# Clean up
+rm -rf src/api-standard src/api-hexagonal
 \\\
 
-## Naming Convention
-**Format:** [org]-[env]-[project]-[type]-[region]  
-**Example:** nl-prod-rooivalk-api-euw
+### 3. Configure
+\\\ash
+# Edit infrastructure parameters
+code infra/parameters/dev.bicepparam
+\\\
 
-## Bicep Modules
-- naming - Standardized names
-- app-service - Azure App Service
-- function-app - Azure Functions
-- postgres - PostgreSQL
-- storage - Storage Account
-- key-vault - Key Vault
-- static-web-app - Static Web Apps
+### 4. Deploy
+\\\ash
+az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/parameters/dev.bicepparam
+\\\
+
+### 5. Run Locally
+\\\ash
+cd src/api
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+\\\
+
+## Architecture Options
+
+### Standard (Layered)
+**Best for:** Quick development, MVPs, simple CRUD
+
+- Fast development
+- Easy to understand
+- Simple structure
+
+### Hexagonal (Clean Architecture)
+**Best for:** Complex business logic, long-term projects
+
+- Highly testable
+- Easy to maintain
+- Clear separation of concerns
+
+See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
+
+## Project Structure
+\\\
+├── infra/           # Bicep templates
+├── src/             # Source code
+│   ├── api-standard/
+│   ├── api-hexagonal/
+│   └── web/
+├── config/          # Environment configs
+├── db/              # Migrations & seeds
+└── tests/           # Unit, integration, E2E
+\\\
+
+## Testing
+\\\ash
+pytest tests/unit -v
+pytest tests/integration -v
+pytest tests/e2e -v
+\\\
 
 ## Related
-- [azure-project-template](https://github.com/phoenixvc/azure-project-template)
+- [azure-infrastructure](https://github.com/phoenixvc/azure-infrastructure) - Standards & modules
 
 Built with ❤️ by Phoenix VC
