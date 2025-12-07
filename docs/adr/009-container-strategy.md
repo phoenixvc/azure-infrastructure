@@ -110,157 +110,33 @@ Azure Container Apps scored highest due to:
 
 ## Implementation
 
-### Container App Bicep Module
+### Container App Configuration
 
-```bicep
-resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
-  name: appName
-  location: location
-  properties: {
-    managedEnvironmentId: environment.id
-    configuration: {
-      activeRevisionsMode: 'Multiple'
-      ingress: {
-        external: true
-        targetPort: 8000
-        traffic: [
-          {
-            latestRevision: true
-            weight: 100
-          }
-        ]
-        corsPolicy: {
-          allowedOrigins: ['*']
-        }
-      }
-      secrets: [
-        {
-          name: 'db-connection'
-          keyVaultUrl: '${keyVault.properties.vaultUri}secrets/db-connection-string'
-          identity: managedIdentity.id
-        }
-      ]
-      registries: [
-        {
-          server: acr.properties.loginServer
-          identity: managedIdentity.id
-        }
-      ]
-    }
-    template: {
-      containers: [
-        {
-          name: 'api'
-          image: '${acr.properties.loginServer}/api:${imageTag}'
-          resources: {
-            cpu: json('0.5')
-            memory: '1Gi'
-          }
-          env: [
-            {
-              name: 'DATABASE_URL'
-              secretRef: 'db-connection'
-            }
-          ]
-          probes: [
-            {
-              type: 'Liveness'
-              httpGet: {
-                path: '/health/live'
-                port: 8000
-              }
-              periodSeconds: 10
-            }
-            {
-              type: 'Readiness'
-              httpGet: {
-                path: '/health/ready'
-                port: 8000
-              }
-              periodSeconds: 5
-            }
-          ]
-        }
-      ]
-      scale: {
-        minReplicas: 1
-        maxReplicas: 10
-        rules: [
-          {
-            name: 'http-scaling'
-            http: {
-              metadata: {
-                concurrentRequests: '100'
-              }
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-```
+| Configuration | Description |
+|---------------|-------------|
+| Revision mode | Multiple revisions for traffic splitting |
+| Ingress | External with custom DNS support |
+| Secrets | Key Vault references via managed identity |
+| Registry | ACR with managed identity authentication |
+| Health probes | Liveness and readiness endpoints |
 
-### Queue-Based Scaling (KEDA)
+### Scaling Options
 
-```bicep
-scale: {
-  minReplicas: 0
-  maxReplicas: 20
-  rules: [
-    {
-      name: 'queue-scaling'
-      custom: {
-        type: 'azure-servicebus'
-        metadata: {
-          queueName: 'orders'
-          messageCount: '5'
-        }
-        auth: [
-          {
-            secretRef: 'servicebus-connection'
-            triggerParameter: 'connection'
-          }
-        ]
-      }
-    }
-  ]
-}
-```
+| Scaling Type | Trigger | Use Case |
+|--------------|---------|----------|
+| HTTP | Concurrent requests | API workloads |
+| KEDA (Queue) | Message count | Background processors |
+| KEDA (Custom) | Custom metrics | Specialized workloads |
+| Schedule | Cron expression | Jobs and maintenance |
 
-### Container Apps Job (Scheduled)
+### Resource Sizing
 
-```bicep
-resource scheduledJob 'Microsoft.App/jobs@2023-05-01' = {
-  name: 'cleanup-job'
-  location: location
-  properties: {
-    environmentId: environment.id
-    configuration: {
-      triggerType: 'Schedule'
-      scheduleTriggerConfig: {
-        cronExpression: '0 0 * * *'  // Daily at midnight
-        parallelism: 1
-        replicaCompletionCount: 1
-      }
-      replicaTimeout: 1800
-      replicaRetryLimit: 3
-    }
-    template: {
-      containers: [
-        {
-          name: 'cleanup'
-          image: '${acr}/cleanup:latest'
-          resources: {
-            cpu: json('0.25')
-            memory: '0.5Gi'
-          }
-        }
-      ]
-    }
-  }
-}
-```
+| Workload | CPU | Memory | Min Replicas | Max Replicas |
+|----------|-----|--------|--------------|--------------|
+| Light API | 0.25 | 0.5Gi | 0 | 5 |
+| Standard API | 0.5 | 1Gi | 1 | 10 |
+| Heavy Processing | 1.0 | 2Gi | 1 | 20 |
+| Background Job | 0.25 | 0.5Gi | 0 | 10 |
 
 ## When to Use Each Platform
 

@@ -108,47 +108,12 @@ Azure Service Bus scored highest due to:
 | Throughput limits | Low | Medium | Use partitioning, Premium tier for high scale |
 | Cost overrun | Medium | Low | Monitor message counts, optimize batch size |
 
-## Implementation Notes
+## Abstraction Requirements
 
-### Queue Configuration
-
-```bicep
-param queues array = [
-  {
-    name: 'orders'
-    maxSizeInMB: 1024
-    enablePartitioning: false
-    maxDeliveryCount: 10
-    lockDuration: 'PT1M'
-  }
-]
-```
-
-### Topic with Subscriptions
-
-```bicep
-param topics array = [
-  {
-    name: 'events'
-    maxSizeInMB: 1024
-    subscriptions: ['audit-log', 'notifications', 'analytics']
-  }
-]
-```
-
-### Python Client Usage
-
-```python
-from azure.servicebus.aio import ServiceBusClient
-
-async def send_message(queue: str, body: dict):
-    async with ServiceBusClient.from_connection_string(conn_str) as client:
-        async with client.get_queue_sender(queue) as sender:
-            message = ServiceBusMessage(json.dumps(body))
-            await sender.send_messages(message)
-```
-
-### Abstraction Layer
+Implement a messaging abstraction layer to enable:
+- Swapping between Service Bus and in-memory implementations
+- Easier testing with mock message brokers
+- Consistent API across the application
 
 See `src/api/app/messaging/base.py` for the messaging abstraction interface.
 

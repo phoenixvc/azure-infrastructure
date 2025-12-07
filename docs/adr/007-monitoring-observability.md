@@ -99,40 +99,13 @@ We need a unified observability strategy covering metrics, logs, traces, and ale
 
 ## Implementation
 
-### Application Insights Setup
+### Observability Components
 
-```bicep
-resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: appInsightsName
-  location: location
-  kind: 'web'
-  properties: {
-    Application_Type: 'web'
-    WorkspaceResourceId: logAnalytics.id
-    publicNetworkAccessForIngestion: 'Enabled'
-    publicNetworkAccessForQuery: 'Enabled'
-  }
-}
-```
-
-### Python Integration
-
-```python
-# requirements.txt
-opencensus-ext-azure==1.1.13
-
-# main.py
-from opencensus.ext.azure.trace_exporter import AzureExporter
-from opencensus.trace.samplers import ProbabilitySampler
-
-# Configure tracer
-tracer = Tracer(
-    exporter=AzureExporter(
-        connection_string=settings.applicationinsights_connection_string
-    ),
-    sampler=ProbabilitySampler(1.0),
-)
-```
+| Component | Purpose | Integration |
+|-----------|---------|-------------|
+| Application Insights | APM, traces, availability | Workspace-linked to Log Analytics |
+| Log Analytics Workspace | Centralized logging | KQL queries, data retention |
+| Azure Monitor Alerts | Proactive notifications | Action Groups for routing |
 
 ### Key Metrics to Monitor
 
@@ -146,35 +119,16 @@ tracer = Tracer(
 | Cache | Hit rate | < 80% |
 | Cache | Memory usage | > 90% |
 
-### Alert Configuration
+### Alert Severity Levels
 
-```bicep
-resource alert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
-  name: 'high-error-rate'
-  properties: {
-    severity: 1
-    evaluationFrequency: 'PT1M'
-    windowSize: 'PT5M'
-    criteria: {
-      'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
-      allOf: [
-        {
-          name: 'ErrorRate'
-          metricName: 'requests/failed'
-          operator: 'GreaterThan'
-          threshold: 10
-          timeAggregation: 'Count'
-        }
-      ]
-    }
-    actions: [
-      {
-        actionGroupId: actionGroup.id
-      }
-    ]
-  }
-}
-```
+| Severity | Use Case | Response Time |
+|----------|----------|---------------|
+| 0 (Critical) | Service down | Immediate |
+| 1 (Error) | High error rate | < 15 min |
+| 2 (Warning) | Performance degradation | < 1 hour |
+| 3 (Informational) | Capacity warnings | Next business day |
+
+See `infra/modules/log-analytics/` for the Bicep implementation.
 
 ## Consequences
 

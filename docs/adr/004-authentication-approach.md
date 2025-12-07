@@ -112,65 +112,21 @@ API Key as primary authentication:
 
 ## Implementation Notes
 
-### API Key Authentication
+### API Key Delivery
 
-```python
-# Header-based (preferred)
-X-API-Key: your-api-key-here
+| Method | Header/Parameter | Use Case |
+|--------|-----------------|----------|
+| Header (preferred) | `X-API-Key` | Server-to-server calls |
+| Query parameter | `api_key` | Fallback for limited clients |
 
-# Query parameter (fallback)
-GET /api/v1/items?api_key=your-api-key-here
-```
+### Key Management Best Practices
 
-### Configuration
-
-```python
-# settings
-api_key: Optional[str] = None  # None = auth disabled (dev mode)
-```
-
-### Middleware Usage
-
-```python
-from app.middleware import APIKeyAuth
-
-auth = APIKeyAuth()
-
-@router.get("/protected")
-async def protected_route(key: str = Depends(auth)):
-    return {"authenticated": True}
-```
-
-### Key Management
-
-```bicep
-// Store API keys in Key Vault
-module keyVault 'modules/key-vault/main.bicep' = {
-  params: {
-    secrets: {
-      'api-key-client-a': generateUniqueString('client-a', subscription().id)
-      'api-key-client-b': generateUniqueString('client-b', subscription().id)
-    }
-  }
-}
-```
-
-### Extending to JWT
-
-For user authentication, add JWT validation:
-
-```python
-from app.middleware import JWTAuth
-
-jwt_auth = JWTAuth(
-    issuer="https://login.microsoftonline.com/{tenant}/v2.0",
-    audience="api://your-api-id"
-)
-
-@router.get("/user-data")
-async def user_route(user: User = Depends(jwt_auth)):
-    return {"user_id": user.id}
-```
+| Practice | Description |
+|----------|-------------|
+| Store in Key Vault | Never in code or config files |
+| Rotate regularly | 90-day rotation policy recommended |
+| Use per-client keys | Enable granular revocation |
+| Development mode | Allow disabling for local testing |
 
 ## References
 

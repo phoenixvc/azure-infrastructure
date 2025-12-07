@@ -74,14 +74,10 @@ Bicep scored highest for Azure-focused deployments:
 
 ### Bicep vs Terraform Decision Tree
 
-```
-Is multi-cloud required?
-├── Yes → Terraform
-└── No
-    └── Is team familiar with Terraform?
-        ├── Yes, strongly → Terraform (leverage expertise)
-        └── No or mixed → Bicep (lower learning curve)
-```
+| Question | If Yes | If No |
+|----------|--------|-------|
+| Is multi-cloud required? | Terraform | Continue to next question |
+| Is team familiar with Terraform? | Terraform (leverage expertise) | Bicep (lower learning curve) |
 
 ## Consequences
 
@@ -115,85 +111,29 @@ Is multi-cloud required?
 
 ### Project Structure
 
-```
-infra/
-├── main.bicep              # Orchestrator
-├── parameters/
-│   ├── dev.bicepparam
-│   ├── staging.bicepparam
-│   └── prod.bicepparam
-└── modules/
-    ├── app-service/
-    ├── container-registry/
-    ├── function-app/
-    ├── key-vault/
-    ├── log-analytics/
-    ├── naming/
-    ├── postgres/
-    ├── private-dns-zone/
-    ├── redis-cache/
-    ├── service-bus/
-    ├── storage/
-    └── vnet/
-```
+| Directory | Purpose |
+|-----------|---------|
+| `infra/main.bicep` | Orchestrator template |
+| `infra/parameters/*.bicepparam` | Environment-specific parameters (dev, staging, prod) |
+| `infra/modules/` | Reusable module library |
 
-### Module Pattern
+### Module Conventions
 
-```bicep
-// modules/example/main.bicep
-@description('Resource name')
-param name string
+| Convention | Description |
+|------------|-------------|
+| Standard parameters | `name`, `location`, `tags` on all modules |
+| Standard outputs | `resourceId`, `resourceName` for chaining |
+| Decorator usage | `@description`, `@allowed`, `@minLength` for validation |
 
-@description('Azure region')
-param location string = resourceGroup().location
+### Deployment Operations
 
-@description('Tags')
-param tags object = {}
+| Operation | Purpose |
+|-----------|---------|
+| Validate | Compile Bicep to ARM, check syntax |
+| What-if | Preview changes before deployment |
+| Deploy | Create or update resources |
 
-resource exampleResource 'Microsoft.Example/resources@2023-01-01' = {
-  name: name
-  location: location
-  tags: tags
-  properties: {
-    // ...
-  }
-}
-
-output resourceId string = exampleResource.id
-output resourceName string = exampleResource.name
-```
-
-### Deployment Commands
-
-```bash
-# Validate
-az bicep build --file main.bicep
-
-# What-if
-az deployment sub what-if \
-  --location eastus \
-  --template-file main.bicep \
-  --parameters parameters/dev.bicepparam
-
-# Deploy
-az deployment sub create \
-  --location eastus \
-  --template-file main.bicep \
-  --parameters parameters/prod.bicepparam
-```
-
-### CI/CD Integration
-
-```yaml
-# GitHub Actions
-- name: Deploy Infrastructure
-  uses: azure/arm-deploy@v1
-  with:
-    scope: subscription
-    region: eastus
-    template: infra/main.bicep
-    parameters: infra/parameters/${{ env.ENVIRONMENT }}.bicepparam
-```
+See `infra/` directory for the actual implementation.
 
 ## References
 

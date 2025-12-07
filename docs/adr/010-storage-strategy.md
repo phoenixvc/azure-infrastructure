@@ -83,187 +83,41 @@ We need a storage strategy that addresses different access patterns, performance
 
 ## Implementation
 
-### Storage Account Bicep Module
+### Storage Account Configuration
 
-```bicep
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: storageAccountName
-  location: location
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_LRS'  // Or Standard_GRS for geo-redundancy
-  }
-  properties: {
-    minimumTlsVersion: 'TLS1_2'
-    supportsHttpsTrafficOnly: true
-    allowBlobPublicAccess: false
-    networkAcls: {
-      defaultAction: 'Deny'
-      bypass: 'AzureServices'
-      virtualNetworkRules: [
-        {
-          id: subnetId
-        }
-      ]
-    }
-    encryption: {
-      services: {
-        blob: { enabled: true }
-        file: { enabled: true }
-      }
-      keySource: 'Microsoft.Storage'
-    }
-  }
-}
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| Kind | StorageV2 | Full feature support |
+| TLS Version | 1.2+ | Security compliance |
+| Public access | Disabled | Prevent data leakage |
+| Network ACLs | VNet rules | Restrict access |
+| Encryption | Azure-managed or CMK | Data protection |
 
-// Blob containers
-resource uploadsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
-  name: '${storageAccount.name}/default/uploads'
-  properties: {
-    publicAccess: 'None'
-  }
-}
-```
+### Container Configuration
 
-### Lifecycle Management Policy
+| Container | Access Level | Features |
+|-----------|--------------|----------|
+| uploads | Private | Versioning enabled |
+| static | Private + CDN | CDN endpoint |
+| logs | Private | Lifecycle policy |
+| backups | Private | Immutable storage |
 
-```bicep
-resource lifecyclePolicy 'Microsoft.Storage/storageAccounts/managementPolicies@2023-01-01' = {
-  parent: storageAccount
-  name: 'default'
-  properties: {
-    policy: {
-      rules: [
-        {
-          name: 'logs-to-cool'
-          type: 'Lifecycle'
-          definition: {
-            filters: {
-              blobTypes: ['blockBlob']
-              prefixMatch: ['logs/']
-            }
-            actions: {
-              baseBlob: {
-                tierToCool: {
-                  daysAfterModificationGreaterThan: 30
-                }
-                tierToArchive: {
-                  daysAfterModificationGreaterThan: 90
-                }
-                delete: {
-                  daysAfterModificationGreaterThan: 365
-                }
-              }
-            }
-          }
-        }
-      ]
-    }
-  }
-}
-```
+### Lifecycle Policy Rules
 
-### Python Storage Abstraction
+| Rule | Condition | Action |
+|------|-----------|--------|
+| Tier to Cool | 30 days after modification | Reduce storage cost |
+| Tier to Archive | 90 days after modification | Long-term storage |
+| Delete | 365 days after modification | Automatic cleanup |
 
-```python
-# src/api/app/storage/base.py
-from abc import ABC, abstractmethod
-from typing import BinaryIO, Optional, List
+### Abstraction Requirements
 
-class BaseStorageProvider(ABC):
-    """Abstract storage provider interface."""
+Implement a storage abstraction layer to enable:
+- Swapping between Azure Blob and local/mock implementations
+- Consistent API for upload, download, delete, and listing
+- SAS URL generation for secure, time-limited access
 
-    @abstractmethod
-    async def upload(
-        self,
-        container: str,
-        blob_name: str,
-        data: BinaryIO,
-        content_type: Optional[str] = None,
-    ) -> str:
-        """Upload a blob and return URL."""
-        pass
-
-    @abstractmethod
-    async def download(
-        self,
-        container: str,
-        blob_name: str,
-    ) -> bytes:
-        """Download blob content."""
-        pass
-
-    @abstractmethod
-    async def delete(
-        self,
-        container: str,
-        blob_name: str,
-    ) -> bool:
-        """Delete a blob."""
-        pass
-
-    @abstractmethod
-    async def list_blobs(
-        self,
-        container: str,
-        prefix: Optional[str] = None,
-    ) -> List[str]:
-        """List blobs in container."""
-        pass
-
-    @abstractmethod
-    async def get_sas_url(
-        self,
-        container: str,
-        blob_name: str,
-        expiry_hours: int = 1,
-    ) -> str:
-        """Generate SAS URL for blob."""
-        pass
-```
-
-### Azure Blob Implementation
-
-```python
-from azure.storage.blob.aio import BlobServiceClient
-from azure.storage.blob import generate_blob_sas, BlobSasPermissions
-from datetime import datetime, timedelta
-
-class AzureBlobStorage(BaseStorageProvider):
-    def __init__(self, connection_string: str):
-        self.client = BlobServiceClient.from_connection_string(connection_string)
-
-    async def upload(
-        self,
-        container: str,
-        blob_name: str,
-        data: BinaryIO,
-        content_type: Optional[str] = None,
-    ) -> str:
-        blob_client = self.client.get_blob_client(container, blob_name)
-        await blob_client.upload_blob(
-            data,
-            content_type=content_type,
-            overwrite=True,
-        )
-        return blob_client.url
-
-    async def get_sas_url(
-        self,
-        container: str,
-        blob_name: str,
-        expiry_hours: int = 1,
-    ) -> str:
-        sas_token = generate_blob_sas(
-            account_name=self.client.account_name,
-            container_name=container,
-            blob_name=blob_name,
-            account_key=self.client.credential.account_key,
-            permission=BlobSasPermissions(read=True),
-            expiry=datetime.utcnow() + timedelta(hours=expiry_hours),
-        )
-        return f"{self.client.url}{container}/{blob_name}?{sas_token}"
-```
+See `infra/modules/storage/` for the Bicep implementation.
 
 ## Cost Optimization
 

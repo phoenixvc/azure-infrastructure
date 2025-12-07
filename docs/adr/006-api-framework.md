@@ -10,186 +10,160 @@ Accepted
 
 ## Context
 
-We need a Python web framework for building REST APIs that:
-- Handles high concurrency efficiently
-- Provides automatic API documentation
-- Supports async operations for I/O-bound workloads
-- Integrates well with Python ecosystem (SQLAlchemy, Pydantic)
-- Enables rapid development with good developer experience
+We need to select API frameworks across supported languages that provide:
+- High performance and scalability
+- Automatic API documentation (OpenAPI)
+- Strong typing and validation
+- Azure service integration
+- Developer productivity
+
+This ADR evaluates frameworks across multiple languages. See ADR-014 for language selection guidance.
 
 ## Decision Drivers
 
-- **Performance**: Async support for high concurrency
-- **Documentation**: Auto-generated OpenAPI specs
-- **Type Safety**: Pydantic integration for validation
-- **Ecosystem**: Middleware, extensions, and community
-- **Learning Curve**: Time to productivity
+- **Performance**: Request throughput, latency
+- **Documentation**: OpenAPI/Swagger generation
+- **Type Safety**: Request/response validation
+- **Azure Integration**: SDK compatibility, deployment support
+- **Ecosystem**: Middleware, extensions, community
 
-## Considered Options
+## Frameworks by Language
 
-1. **FastAPI**
-2. **Django REST Framework**
-3. **Flask + Flask-RESTful**
-4. **Starlette**
-5. **aiohttp**
+### .NET Frameworks
 
-## Evaluation Matrix
+| Framework | Use Case | OpenAPI | Performance |
+|-----------|----------|---------|-------------|
+| ASP.NET Core Minimal APIs | High-performance APIs | Native | Excellent |
+| ASP.NET Core MVC | Full-featured web apps | Native | Excellent |
+| FastEndpoints | REPR pattern APIs | Native | Excellent |
 
-| Criterion | Weight | FastAPI | Django RF | Flask | Starlette | aiohttp |
-|-----------|--------|---------|-----------|-------|-----------|---------|
-| Async Performance | 5 | 5 (25) | 2 (10) | 2 (10) | 5 (25) | 5 (25) |
-| Auto Documentation | 5 | 5 (25) | 3 (15) | 2 (10) | 3 (15) | 2 (10) |
-| Type Safety | 5 | 5 (25) | 2 (10) | 2 (10) | 3 (15) | 2 (10) |
-| Pydantic Integration | 4 | 5 (20) | 2 (8) | 2 (8) | 4 (16) | 2 (8) |
-| SQLAlchemy Async | 4 | 5 (20) | 3 (12) | 3 (12) | 5 (20) | 4 (16) |
-| Learning Curve | 4 | 4 (16) | 3 (12) | 5 (20) | 4 (16) | 3 (12) |
-| Dependency Injection | 4 | 5 (20) | 4 (16) | 2 (8) | 3 (12) | 2 (8) |
-| Community/Ecosystem | 3 | 4 (12) | 5 (15) | 5 (15) | 3 (9) | 3 (9) |
-| **Total** | **34** | **163** | **98** | **93** | **128** | **98** |
+### Python Frameworks
 
-### Scoring Guide
-- **Weight**: 1 (Nice to have) → 5 (Critical)
-- **Score**: 1 (Poor) → 5 (Excellent)
+| Framework | Use Case | OpenAPI | Performance |
+|-----------|----------|---------|-------------|
+| FastAPI | Modern async APIs | Native | Very Good |
+| Django REST Framework | Full-featured APIs | Via drf-spectacular | Good |
+| Flask + Flask-RESTx | Lightweight APIs | Native | Good |
+| Litestar | High-performance async | Native | Excellent |
+
+### Node.js/TypeScript Frameworks
+
+| Framework | Use Case | OpenAPI | Performance |
+|-----------|----------|---------|-------------|
+| NestJS | Enterprise Node.js | Native | Good |
+| Fastify | High-performance APIs | Via plugin | Excellent |
+| Express + tsoa | Traditional REST | Via tsoa | Good |
+| Hono | Edge/serverless | Via plugin | Excellent |
+
+### Go Frameworks
+
+| Framework | Use Case | OpenAPI | Performance |
+|-----------|----------|---------|-------------|
+| Chi | Lightweight routing | Via swag | Excellent |
+| Echo | Full-featured | Via swag | Excellent |
+| Gin | Popular, fast | Via gin-swagger | Excellent |
+| Fiber | Express-like | Via swagger | Excellent |
+
+### Java/Kotlin Frameworks
+
+| Framework | Use Case | OpenAPI | Performance |
+|-----------|----------|---------|-------------|
+| Spring Boot | Enterprise Java | Native | Good |
+| Quarkus | Cloud-native Java | Native | Excellent |
+| Micronaut | Low-memory footprint | Native | Excellent |
+| Ktor (Kotlin) | Lightweight Kotlin | Via plugin | Excellent |
+
+## Cross-Language Evaluation
+
+| Criterion | Weight | .NET Minimal | FastAPI | NestJS | Go Chi | Spring Boot |
+|-----------|--------|--------------|---------|--------|--------|-------------|
+| Raw Performance | 4 | 5 (20) | 3 (12) | 3 (12) | 5 (20) | 3 (12) |
+| OpenAPI Native | 5 | 5 (25) | 5 (25) | 5 (25) | 3 (15) | 5 (25) |
+| Type Safety | 5 | 5 (25) | 4 (20) | 5 (25) | 4 (20) | 5 (25) |
+| Azure Integration | 4 | 5 (20) | 4 (16) | 4 (16) | 4 (16) | 4 (16) |
+| Learning Curve | 4 | 4 (16) | 5 (20) | 3 (12) | 4 (16) | 2 (8) |
+| Ecosystem | 4 | 5 (20) | 4 (16) | 5 (20) | 4 (16) | 5 (20) |
+| **Total** | **26** | **126** | **109** | **110** | **103** | **106** |
+
+## Recommended Frameworks by Use Case
+
+| Use Case | Recommended | Alternative |
+|----------|-------------|-------------|
+| High-performance enterprise | ASP.NET Core Minimal | Go Chi/Echo |
+| Rapid API development | FastAPI | NestJS |
+| AI/ML APIs | FastAPI | Flask |
+| Full-stack TypeScript | NestJS | Fastify |
+| Microservices | Go Chi | ASP.NET Core |
+| Serverless functions | ASP.NET Core | FastAPI |
+| Legacy enterprise | Spring Boot | ASP.NET Core |
 
 ## Decision
 
-**FastAPI** as the API framework.
+**Framework selection based on language choice**:
 
-## Rationale
+| If Language | Then Framework | Rationale |
+|-------------|----------------|-----------|
+| .NET | ASP.NET Core Minimal APIs | Best performance, native Azure |
+| Python | FastAPI | Modern async, auto-docs |
+| Node.js | NestJS or Fastify | Enterprise (NestJS) or Performance (Fastify) |
+| Go | Chi or Echo | Idiomatic Go, high performance |
+| Java | Quarkus or Spring Boot | Cloud-native (Quarkus) or Enterprise (Spring) |
+| Kotlin | Ktor | Native Kotlin, lightweight |
 
-FastAPI scored significantly higher due to:
+## Common Patterns Across Frameworks
 
-1. **Native async support**: Built on Starlette's ASGI foundation for true async performance.
+Regardless of framework, implement:
 
-2. **Automatic OpenAPI**: Request/response models generate Swagger and ReDoc docs automatically.
+| Pattern | Purpose |
+|---------|---------|
+| Repository | Database abstraction |
+| Dependency Injection | Testability, loose coupling |
+| Middleware Pipeline | Cross-cutting concerns |
+| Request Validation | Input sanitization |
+| Error Handling | Consistent error responses |
+| Health Endpoints | Kubernetes/Azure probes |
 
-3. **Pydantic integration**: First-class type validation with detailed error messages.
+## OpenAPI Considerations
 
-4. **Dependency injection**: Built-in DI system for clean, testable code.
-
-5. **Modern Python**: Leverages type hints for better IDE support and documentation.
+| Requirement | .NET | Python | Node.js | Go |
+|-------------|------|--------|---------|-----|
+| Auto-generation | Native | FastAPI native | Decorators | Code comments |
+| Schema validation | Native | Pydantic | class-validator | go-playground/validator |
+| Client generation | NSwag | openapi-generator | openapi-generator | oapi-codegen |
 
 ## Consequences
 
 ### Positive
 
-- Exceptional performance (comparable to Node.js/Go)
-- Interactive API documentation out-of-box
-- Type hints catch bugs at development time
-- Easy testing with TestClient
-- Great async database/cache integration
-- Active community and rapid development
+- Clear framework guidance per language
+- Consistent patterns across implementations
+- OpenAPI-first approach enables client generation
+- Performance-appropriate choices
 
 ### Negative
 
-- Requires Python 3.8+ (type hints)
-- Async complexity for simple use cases
-- Less mature than Django for full-stack apps
-- Some plugins still catching up to async
+- Different frameworks require different expertise
+- Varied testing and deployment patterns
+- Inconsistent middleware implementations
 
 ### Risks and Mitigations
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
-| Async complexity | Medium | Medium | Provide team training, code reviews |
-| Breaking changes | Low | Medium | Pin versions, review changelogs |
-| Scaling issues | Low | Medium | Use proper connection pooling |
-| Missing features | Low | Low | Starlette middleware compatible |
+| Framework lock-in | Medium | Medium | Use standard patterns, abstract I/O |
+| Version fragmentation | Medium | Low | Pin versions, regular updates |
+| Performance gaps | Low | Medium | Benchmark critical paths |
 
-## Implementation Notes
+## This Repository
 
-### Project Structure
-
-```
-src/api/
-├── app/
-│   ├── __init__.py
-│   ├── main.py           # App factory
-│   ├── config.py         # Settings management
-│   ├── models.py         # Pydantic schemas
-│   ├── database/         # SQLAlchemy async
-│   ├── middleware/       # Auth, logging, etc.
-│   └── routers/          # API endpoints
-│       ├── __init__.py
-│       ├── health.py
-│       └── items.py
-└── requirements.txt
-```
-
-### Application Factory
-
-```python
-def create_app() -> FastAPI:
-    app = FastAPI(
-        title="Azure Infrastructure API",
-        version="1.0.0",
-        docs_url="/docs",
-        redoc_url="/redoc",
-    )
-
-    # Add middleware
-    app.add_middleware(CORSMiddleware, ...)
-
-    # Include routers
-    app.include_router(health_router)
-    app.include_router(items_router, prefix="/api/v1")
-
-    return app
-```
-
-### Router Pattern
-
-```python
-from fastapi import APIRouter, Depends, HTTPException
-
-router = APIRouter(prefix="/items", tags=["Items"])
-
-@router.get("", response_model=List[Item])
-async def list_items(
-    skip: int = 0,
-    limit: int = 100,
-    db = Depends(get_db),
-) -> List[Item]:
-    return await repository.get_all(db, skip, limit)
-```
-
-### Pydantic Models
-
-```python
-from pydantic import BaseModel, Field
-
-class ItemBase(BaseModel):
-    name: str = Field(..., min_length=1, max_length=200)
-    price: float = Field(..., ge=0)
-
-class Item(ItemBase):
-    id: UUID
-    created_at: datetime
-
-    class Config:
-        from_attributes = True  # ORM mode
-```
-
-### Dependency Injection
-
-```python
-async def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db = Depends(get_db),
-) -> User:
-    user = await authenticate(token, db)
-    if not user:
-        raise HTTPException(401, "Invalid credentials")
-    return user
-
-@router.get("/me")
-async def get_me(user: User = Depends(get_current_user)):
-    return user
-```
+This repository includes a Python (FastAPI) reference implementation. Future additions may include:
+- .NET Minimal API reference
+- Node.js/NestJS reference
+- Go Chi reference
 
 ## References
 
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Starlette Framework](https://www.starlette.io/)
-- [Pydantic v2](https://docs.pydantic.dev/latest/)
-- [SQLAlchemy Async](https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html)
+- ASP.NET Core documentation
+- FastAPI documentation
+- NestJS documentation
+- TechEmpower Framework Benchmarks

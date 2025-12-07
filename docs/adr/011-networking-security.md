@@ -72,135 +72,38 @@ The platform requires a secure networking architecture that:
 
 ### Layer 1: Edge Protection
 
-```bicep
-// Azure Front Door with WAF
-resource frontDoor 'Microsoft.Cdn/profiles@2023-05-01' = {
-  name: frontDoorName
-  location: 'global'
-  sku: {
-    name: 'Premium_AzureFrontDoor'
-  }
-}
-
-resource wafPolicy 'Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@2022-05-01' = {
-  name: 'waf-policy'
-  properties: {
-    policySettings: {
-      mode: 'Prevention'
-      requestBodyCheck: 'Enabled'
-    }
-    managedRules: {
-      managedRuleSets: [
-        {
-          ruleSetType: 'Microsoft_DefaultRuleSet'
-          ruleSetVersion: '2.1'
-        }
-        {
-          ruleSetType: 'Microsoft_BotManagerRuleSet'
-          ruleSetVersion: '1.0'
-        }
-      ]
-    }
-  }
-}
-```
+| Component | Purpose | Configuration |
+|-----------|---------|---------------|
+| Azure Front Door | Global load balancing, CDN | Premium SKU for WAF |
+| WAF Policy | Attack protection | Prevention mode, OWASP rules |
+| Bot Manager | Bot mitigation | Microsoft rule set |
 
 ### Layer 2: Network Segmentation
 
-```bicep
-// NSG for Application Subnet
-resource appNsg 'Microsoft.Network/networkSecurityGroups@2023-05-01' = {
-  name: '${vnetName}-app-nsg'
-  location: location
-  properties: {
-    securityRules: [
-      {
-        name: 'AllowHTTPS'
-        properties: {
-          priority: 100
-          direction: 'Inbound'
-          access: 'Allow'
-          protocol: 'Tcp'
-          sourceAddressPrefix: 'Internet'
-          sourcePortRange: '*'
-          destinationAddressPrefix: '*'
-          destinationPortRange: '443'
-        }
-      }
-      {
-        name: 'DenyAllInbound'
-        properties: {
-          priority: 4096
-          direction: 'Inbound'
-          access: 'Deny'
-          protocol: '*'
-          sourceAddressPrefix: '*'
-          sourcePortRange: '*'
-          destinationAddressPrefix: '*'
-          destinationPortRange: '*'
-        }
-      }
-    ]
-  }
-}
-```
+| Subnet | Purpose | NSG Rules |
+|--------|---------|-----------|
+| App Subnet | Container Apps, App Service | Allow 443 inbound, deny all else |
+| Data Subnet | PostgreSQL (delegated) | Allow 5432 from App subnet only |
+| Private Endpoints | PaaS services | Allow from VNet only |
 
 ### Layer 3: Private Endpoints
 
-```bicep
-// Private Endpoint for Key Vault
-resource keyVaultPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
-  name: '${keyVaultName}-pe'
-  location: location
-  properties: {
-    subnet: {
-      id: privateEndpointSubnetId
-    }
-    privateLinkServiceConnections: [
-      {
-        name: 'keyVaultConnection'
-        properties: {
-          privateLinkServiceId: keyVault.id
-          groupIds: ['vault']
-        }
-      }
-    ]
-  }
-}
-
-// Private DNS Zone Link
-resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
-  name: 'privatelink.vaultcore.azure.net'
-  location: 'global'
-}
-```
+| Service | Private DNS Zone |
+|---------|------------------|
+| Key Vault | `privatelink.vaultcore.azure.net` |
+| Storage | `privatelink.blob.core.windows.net` |
+| ACR | `privatelink.azurecr.io` |
+| PostgreSQL | `privatelink.postgres.database.azure.com` |
+| Service Bus | `privatelink.servicebus.windows.net` |
 
 ### Layer 4: Identity & Access
 
-```bicep
-// Managed Identity for services
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${prefix}-identity'
-  location: location
-}
-
-// Key Vault access policy
-resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2023-07-01' = {
-  parent: keyVault
-  name: 'add'
-  properties: {
-    accessPolicies: [
-      {
-        objectId: managedIdentity.properties.principalId
-        tenantId: subscription().tenantId
-        permissions: {
-          secrets: ['get', 'list']
-        }
-      }
-    ]
-  }
-}
-```
+| Component | Purpose |
+|-----------|---------|
+| User-assigned Managed Identity | Service authentication |
+| RBAC | Role-based access control |
+| Key Vault Access Policies | Secret/key permissions |
+| Conditional Access | Risk-based authentication |
 
 ## Zero Trust Implementation
 
@@ -224,25 +127,14 @@ resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2023-07-
 
 ## Security Monitoring
 
-```bicep
-// Diagnostic settings for NSG flow logs
-resource nsgFlowLog 'Microsoft.Network/networkWatchers/flowLogs@2023-05-01' = {
-  name: 'nsg-flow-logs'
-  location: location
-  properties: {
-    targetResourceId: appNsg.id
-    storageId: storageAccount.id
-    enabled: true
-    flowAnalyticsConfiguration: {
-      networkWatcherFlowAnalyticsConfiguration: {
-        enabled: true
-        workspaceResourceId: logAnalytics.id
-        trafficAnalyticsInterval: 10
-      }
-    }
-  }
-}
-```
+| Monitoring Type | Service | Purpose |
+|-----------------|---------|---------|
+| NSG Flow Logs | Network Watcher | Traffic analysis |
+| Traffic Analytics | Log Analytics | Pattern detection |
+| DDoS Protection | Azure DDoS | Attack mitigation |
+| Security Center | Defender for Cloud | Threat detection |
+
+See `infra/modules/vnet/` for the VNet and NSG implementation.
 
 ## Consequences
 

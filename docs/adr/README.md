@@ -19,11 +19,15 @@ This directory contains Architecture Decision Records for the Azure Infrastructu
 | [ADR-011](011-networking-security.md) | Networking & Security | Accepted | Security |
 | [ADR-012](012-cicd-pipeline.md) | CI/CD Pipeline Strategy | Accepted | DevOps |
 | [ADR-013](013-secret-management.md) | Secret Management | Accepted | Security |
+| [ADR-014](014-programming-language.md) | Programming Language & Runtime | Accepted | Foundation |
 
 ## Categories
 
+### Foundation
+- Programming Language & Runtime Selection (multi-language evaluation)
+- API Framework Selection (language-specific frameworks)
+
 ### Application Layer
-- API Framework (FastAPI)
 - AI Integration (Azure OpenAI, AI Foundry)
 
 ### Data Layer
