@@ -5,13 +5,13 @@ Production-ready Azure project template with multiple architecture options.
 ## Quick Start
 
 ### 1. Create from Template
-\\\ash
+```bash
 gh repo create myorg/my-project --template phoenixvc/azure-project-template --public --clone
 cd my-project
-\\\
+```
 
 ### 2. Choose Architecture
-\\\ash
+```bash
 # Standard (fast development)
 cp -r src/api-standard src/api
 
@@ -20,25 +20,25 @@ cp -r src/api-hexagonal src/api
 
 # Clean up
 rm -rf src/api-standard src/api-hexagonal
-\\\
+```
 
 ### 3. Configure
-\\\ash
+```bash
 # Edit infrastructure parameters
 code infra/parameters/dev.bicepparam
-\\\
+```
 
 ### 4. Deploy
-\\\ash
+```bash
 az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/parameters/dev.bicepparam
-\\\
+```
 
 ### 5. Run Locally
-\\\ash
+```bash
 cd src/api
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
-\\\
+```
 
 ## Architecture Options
 
@@ -59,7 +59,7 @@ uvicorn main:app --reload --port 8000
 See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
 
 ## Project Structure
-\\\
+```
 ├── infra/           # Bicep templates
 ├── src/             # Source code
 │   ├── api-standard/
@@ -68,14 +68,14 @@ See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
 ├── config/          # Environment configs
 ├── db/              # Migrations & seeds
 └── tests/           # Unit, integration, E2E
-\\\
+```
 
 ## Testing
-\\\ash
+```bash
 pytest tests/unit -v
 pytest tests/integration -v
 pytest tests/e2e -v
-\\\
+```
 
 ## Related
 - [azure-infrastructure](https://github.com/phoenixvc/azure-infrastructure) - Standards & modules
