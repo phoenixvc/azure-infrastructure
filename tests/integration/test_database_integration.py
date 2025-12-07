@@ -38,7 +38,7 @@ class TestDatabaseIntegration:
 
     def test_database_pool_configuration(self, test_database_url: str):
         """Test that database pool configuration is valid."""
-        from src.api.app.config import Settings
+        from app.config import Settings
 
         settings = Settings()
 
@@ -69,7 +69,7 @@ class TestStorageIntegration:
 
     def test_storage_configuration(self, test_storage_connection: str):
         """Test that storage configuration is valid."""
-        from src.api.app.config import Settings
+        from app.config import Settings
 
         settings = Settings()
 

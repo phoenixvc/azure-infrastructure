@@ -159,6 +159,56 @@ resource nsgDatabase 'Microsoft.Network/networkSecurityGroups@2023-09-01' = {
   }
 }
 
+// Network Security Group for app-service subnet
+resource nsgAppService 'Microsoft.Network/networkSecurityGroups@2023-09-01' = {
+  name: '${vnetName}-appservice-nsg'
+  location: location
+  tags: tags
+  properties: {
+    securityRules: [
+      {
+        name: 'AllowHTTPS'
+        properties: {
+          priority: 100
+          direction: 'Inbound'
+          access: 'Allow'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '443'
+          sourceAddressPrefix: '*'
+          destinationAddressPrefix: '*'
+        }
+      }
+      {
+        name: 'AllowAppServiceManagement'
+        properties: {
+          priority: 110
+          direction: 'Inbound'
+          access: 'Allow'
+          protocol: '*'
+          sourcePortRange: '*'
+          destinationPortRange: '454-455'
+          sourceAddressPrefix: 'AppServiceManagement'
+          destinationAddressPrefix: '*'
+        }
+      }
+      {
+        name: 'AllowVnetOutbound'
+        properties: {
+          priority: 100
+          direction: 'Outbound'
+          access: 'Allow'
+          protocol: '*'
+          sourcePortRange: '*'
+          destinationPortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationAddressPrefix: 'VirtualNetwork'
+        }
+      }
+    ]
+  }
+}
+
 // Network Security Group for private endpoints subnet
 resource nsgPrivateEndpoints 'Microsoft.Network/networkSecurityGroups@2023-09-01' = {
   name: '${vnetName}-pe-nsg'
@@ -213,7 +263,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
         serviceEndpoints: subnet.serviceEndpoints
         delegations: subnet.delegations
         privateEndpointNetworkPolicies: subnet.privateEndpointNetworkPolicies
-        networkSecurityGroup: subnet.name == 'default' ? { id: nsgDefault.id } : subnet.name == 'database' ? { id: nsgDatabase.id } : subnet.name == 'private-endpoints' ? { id: nsgPrivateEndpoints.id } : null
+        networkSecurityGroup: subnet.name == 'default' ? { id: nsgDefault.id } : subnet.name == 'app-service' ? { id: nsgAppService.id } : subnet.name == 'database' ? { id: nsgDatabase.id } : subnet.name == 'private-endpoints' ? { id: nsgPrivateEndpoints.id } : null
       }
     }]
   }

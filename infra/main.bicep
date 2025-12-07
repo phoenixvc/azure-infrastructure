@@ -143,6 +143,21 @@ module vnet 'modules/vnet/main.bicep' = if (enableVnet) {
 }
 
 // ============================================================================
+// Private DNS Zone for PostgreSQL (when VNet enabled)
+// ============================================================================
+
+module postgresDnsZone 'modules/private-dns-zone/main.bicep' = if (enableVnet) {
+  scope: rg
+  name: 'postgres-dns-zone'
+  params: {
+    zoneName: 'privatelink.postgres.database.azure.com'
+    vnetId: enableVnet ? vnet.outputs.vnetId : ''
+    vnetName: naming.outputs.name_vnet
+    tags: rg.tags
+  }
+}
+
+// ============================================================================
 // Storage Account
 // ============================================================================
 
@@ -171,12 +186,14 @@ module postgres 'modules/postgres/main.bicep' = {
     administratorLogin: dbAdminLogin
     administratorPassword: dbAdminPassword
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsId
+    delegatedSubnetId: enableVnet ? vnet.outputs.subnetIds.database : ''
+    privateDnsZoneId: enableVnet ? postgresDnsZone.outputs.privateDnsZoneId : ''
     tags: rg.tags
   }
 }
 
 // ============================================================================
-// Key Vault
+// Key Vault (created early to store secrets)
 // ============================================================================
 
 module keyVault 'modules/key-vault/main.bicep' = {
@@ -190,6 +207,10 @@ module keyVault 'modules/key-vault/main.bicep' = {
       functionApp.outputs.principalId
     ]
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsId
+    secrets: {
+      'db-admin-password': dbAdminPassword
+      'db-connection-string': 'postgresql://${dbAdminLogin}:${dbAdminPassword}@${postgres.outputs.postgresServerFqdn}:5432/postgres?sslmode=require'
+    }
     tags: rg.tags
   }
 }
@@ -226,6 +247,22 @@ module apiService 'modules/app-service/main.bicep' = {
     sku: appServiceSku
     runtimeStack: runtimeStack
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsId
+    subnetId: enableVnet ? vnet.outputs.subnetIds.appService : ''
+    appInsightsConnectionString: logAnalytics.outputs.appInsightsConnectionString
+    appSettings: [
+      {
+        name: 'DATABASE_URL'
+        value: '@Microsoft.KeyVault(VaultName=${naming.outputs.name_kv};SecretName=db-connection-string)'
+      }
+      {
+        name: 'AZURE_KEY_VAULT_URL'
+        value: 'https://${naming.outputs.name_kv}${environment().suffixes.keyvaultDns}'
+      }
+      {
+        name: 'AZURE_STORAGE_ACCOUNT_NAME'
+        value: naming.outputs.name_storage
+      }
+    ]
     tags: rg.tags
   }
 }
@@ -234,16 +271,20 @@ module apiService 'modules/app-service/main.bicep' = {
 // Function App
 // ============================================================================
 
+// Function App storage name (must be <=24 chars, alphanumeric only)
+var funcStorageName = take('${org}${env}${replace(project, '-', '')}func${region}', 24)
+
 module functionApp 'modules/function-app/main.bicep' = {
   scope: rg
   name: 'function-app'
   params: {
     funcName: naming.outputs.name_func
-    storageName: '${naming.outputs.name_storage}func'
+    storageName: funcStorageName
     location: location
     runtime: 'python'
     runtimeVersion: '3.11'
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsId
+    appInsightsConnectionString: logAnalytics.outputs.appInsightsConnectionString
     tags: rg.tags
   }
 }

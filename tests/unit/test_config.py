@@ -3,7 +3,7 @@
 import os
 import pytest
 
-from src.api.app.config import Settings, get_settings
+from app.config import Settings, get_settings
 
 
 class TestSettings:

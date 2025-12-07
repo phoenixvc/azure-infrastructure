@@ -28,7 +28,7 @@ class TestInventoryManagementWorkflow:
 
         # Step 2: Add products to inventory
         for item_data in workflow_test_data["items"]:
-            response = e2e_client.post("/items", json=item_data)
+            response = e2e_client.post("/api/v1/items", json=item_data)
             assert response.status_code == 201
 
             created_item = response.json()
@@ -37,7 +37,7 @@ class TestInventoryManagementWorkflow:
             created_ids.append(created_item["id"])
 
         # Step 3: View product catalog
-        list_response = e2e_client.get("/items")
+        list_response = e2e_client.get("/api/v1/items")
         assert list_response.status_code == 200
         items = list_response.json()
 
@@ -48,7 +48,7 @@ class TestInventoryManagementWorkflow:
 
         # Step 4: Update product details (simulate price change)
         first_item_id = created_ids[0]
-        original_item = e2e_client.get(f"/items/{first_item_id}").json()
+        original_item = e2e_client.get(f"/api/v1/items/{first_item_id}").json()
 
         updated_data = {
             "name": original_item["name"],
@@ -56,22 +56,22 @@ class TestInventoryManagementWorkflow:
             "price": original_item["price"] * 0.8,  # 20% discount
             "quantity": original_item["quantity"],
         }
-        update_response = e2e_client.put(f"/items/{first_item_id}", json=updated_data)
+        update_response = e2e_client.put(f"/api/v1/items/{first_item_id}", json=updated_data)
         assert update_response.status_code == 200
         assert update_response.json()["price"] == updated_data["price"]
 
         # Step 5: Remove a product (sold out/discontinued)
         last_item_id = created_ids[-1]
-        delete_response = e2e_client.delete(f"/items/{last_item_id}")
+        delete_response = e2e_client.delete(f"/api/v1/items/{last_item_id}")
         assert delete_response.status_code == 204
 
         # Verify product removed from catalog
-        get_deleted = e2e_client.get(f"/items/{last_item_id}")
+        get_deleted = e2e_client.get(f"/api/v1/items/{last_item_id}")
         assert get_deleted.status_code == 404
 
         # Cleanup remaining items
         for item_id in created_ids[:-1]:  # Already deleted last one
-            e2e_client.delete(f"/items/{item_id}")
+            e2e_client.delete(f"/api/v1/items/{item_id}")
 
 
 class TestAPIDiscoveryWorkflow:
@@ -109,7 +109,7 @@ class TestAPIDiscoveryWorkflow:
         assert "openapi" in openapi_data
         assert "paths" in openapi_data
         assert "/health" in openapi_data["paths"]
-        assert "/items" in openapi_data["paths"]
+        assert "/api/v1/items" in openapi_data["paths"]
 
         # Step 4: Verify health endpoints
         health_url = root_data["health"]
@@ -139,33 +139,33 @@ class TestErrorHandlingWorkflow:
 
         # Try to get non-existent item
         fake_id = uuid4()
-        get_response = e2e_client.get(f"/items/{fake_id}")
+        get_response = e2e_client.get(f"/api/v1/items/{fake_id}")
         assert get_response.status_code == 404
 
         # Try to update non-existent item
         update_data = {"name": "Test", "price": 10.0}
-        update_response = e2e_client.put(f"/items/{fake_id}", json=update_data)
+        update_response = e2e_client.put(f"/api/v1/items/{fake_id}", json=update_data)
         assert update_response.status_code == 404
 
         # Try to delete non-existent item
-        delete_response = e2e_client.delete(f"/items/{fake_id}")
+        delete_response = e2e_client.delete(f"/api/v1/items/{fake_id}")
         assert delete_response.status_code == 404
 
     def test_invalid_input_workflow(self, e2e_client: TestClient):
         """Test handling of invalid input data."""
         # Invalid item: empty name
         invalid_item_1 = {"name": "", "price": 10.0}
-        response_1 = e2e_client.post("/items", json=invalid_item_1)
+        response_1 = e2e_client.post("/api/v1/items", json=invalid_item_1)
         assert response_1.status_code == 422
 
         # Invalid item: negative price
         invalid_item_2 = {"name": "Test Item", "price": -10.0}
-        response_2 = e2e_client.post("/items", json=invalid_item_2)
+        response_2 = e2e_client.post("/api/v1/items", json=invalid_item_2)
         assert response_2.status_code == 422
 
         # Invalid item: missing required field
         invalid_item_3 = {"description": "No name or price"}
-        response_3 = e2e_client.post("/items", json=invalid_item_3)
+        response_3 = e2e_client.post("/api/v1/items", json=invalid_item_3)
         assert response_3.status_code == 422
 
     def test_idempotency_workflow(self, e2e_client: TestClient):
@@ -177,14 +177,14 @@ class TestErrorHandlingWorkflow:
             "price": 50.0,
             "quantity": 10,
         }
-        create_response = e2e_client.post("/items", json=item_data)
+        create_response = e2e_client.post("/api/v1/items", json=item_data)
         assert create_response.status_code == 201
         item_id = create_response.json()["id"]
 
         # Delete item
-        delete_1 = e2e_client.delete(f"/items/{item_id}")
+        delete_1 = e2e_client.delete(f"/api/v1/items/{item_id}")
         assert delete_1.status_code == 204
 
         # Try to delete again - should return 404
-        delete_2 = e2e_client.delete(f"/items/{item_id}")
+        delete_2 = e2e_client.delete(f"/api/v1/items/{item_id}")
         assert delete_2.status_code == 404

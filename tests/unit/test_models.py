@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from src.api.app.models import (
+from app.models import (
     User,
     UserCreate,
     Item,

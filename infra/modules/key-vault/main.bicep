@@ -22,6 +22,10 @@ param logAnalyticsWorkspaceId string
 @description('Tags to apply to resources')
 param tags object = {}
 
+@description('Secrets to create in Key Vault')
+@secure()
+param secrets object = {}
+
 // Key Vault
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
 name: kvName
@@ -53,9 +57,19 @@ properties: {
 }
 }
 
+// Create secrets
+resource keyVaultSecrets 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = [for secret in items(secrets): {
+  parent: keyVault
+  name: secret.key
+  properties: {
+    value: secret.value
+    contentType: 'text/plain'
+  }
+}]
+
 // Diagnostic Settings
 resource diagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-name: '${kvName}-diagnostics'
+  name: '${kvName}-diagnostics'
 scope: keyVault
 properties: {
   workspaceId: logAnalyticsWorkspaceId

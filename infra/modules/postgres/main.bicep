@@ -34,40 +34,50 @@ param logAnalyticsWorkspaceId string
 @description('Tags to apply to resources')
 param tags object = {}
 
+@description('Delegated subnet ID for VNet integration (optional)')
+param delegatedSubnetId string = ''
+
+@description('Private DNS zone ID for VNet integration (optional)')
+param privateDnsZoneId string = ''
+
 // PostgreSQL Flexible Server
 resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2023-03-01-preview' = {
-name: dbName
-location: location
-tags: tags
-sku: {
-  name: skuName
-  tier: 'Burstable'
-}
-properties: {
-  version: postgresVersion
-  administratorLogin: administratorLogin
-  administratorLoginPassword: administratorPassword
-  storage: {
-    storageSizeGB: storageSizeGB
+  name: dbName
+  location: location
+  tags: tags
+  sku: {
+    name: skuName
+    tier: 'Burstable'
   }
-  backup: {
-    backupRetentionDays: 7
-    geoRedundantBackup: 'Disabled'
+  properties: {
+    version: postgresVersion
+    administratorLogin: administratorLogin
+    administratorLoginPassword: administratorPassword
+    storage: {
+      storageSizeGB: storageSizeGB
+    }
+    backup: {
+      backupRetentionDays: 7
+      geoRedundantBackup: 'Disabled'
+    }
+    highAvailability: {
+      mode: 'Disabled'
+    }
+    network: !empty(delegatedSubnetId) ? {
+      delegatedSubnetResourceId: delegatedSubnetId
+      privateDnsZoneArmResourceId: privateDnsZoneId
+    } : {}
   }
-  highAvailability: {
-    mode: 'Disabled'
-  }
-}
 }
 
-// Firewall rule to allow Azure services
-resource firewallRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2023-03-01-preview' = {
-parent: postgresServer
-name: 'AllowAzureServices'
-properties: {
-  startIpAddress: '0.0.0.0'
-  endIpAddress: '0.0.0.0'
-}
+// Firewall rule to allow Azure services (only when not using VNet)
+resource firewallRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2023-03-01-preview' = if (empty(delegatedSubnetId)) {
+  parent: postgresServer
+  name: 'AllowAzureServices'
+  properties: {
+    startIpAddress: '0.0.0.0'
+    endIpAddress: '0.0.0.0'
+  }
 }
 
 // Diagnostic Settings

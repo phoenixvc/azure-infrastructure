@@ -53,33 +53,33 @@ class TestItemsCRUDIntegration:
             "price": 99.99,
             "quantity": 5,
         }
-        create_response = integration_client.post("/items", json=item_data)
+        create_response = integration_client.post("/api/v1/items", json=item_data)
         assert create_response.status_code == 201
         created_item = create_response.json()
         item_id = created_item["id"]
 
         # Read
-        get_response = integration_client.get(f"/items/{item_id}")
+        get_response = integration_client.get(f"/api/v1/items/{item_id}")
         assert get_response.status_code == 200
         assert get_response.json()["name"] == item_data["name"]
 
         # Update
         updated_data = {**item_data, "name": "Updated Integration Item", "price": 149.99}
-        update_response = integration_client.put(f"/items/{item_id}", json=updated_data)
+        update_response = integration_client.put(f"/api/v1/items/{item_id}", json=updated_data)
         assert update_response.status_code == 200
         assert update_response.json()["name"] == "Updated Integration Item"
         assert update_response.json()["price"] == 149.99
 
         # Verify update persisted
-        verify_response = integration_client.get(f"/items/{item_id}")
+        verify_response = integration_client.get(f"/api/v1/items/{item_id}")
         assert verify_response.json()["name"] == "Updated Integration Item"
 
         # Delete
-        delete_response = integration_client.delete(f"/items/{item_id}")
+        delete_response = integration_client.delete(f"/api/v1/items/{item_id}")
         assert delete_response.status_code == 204
 
         # Verify deletion
-        get_deleted = integration_client.get(f"/items/{item_id}")
+        get_deleted = integration_client.get(f"/api/v1/items/{item_id}")
         assert get_deleted.status_code == 404
 
     def test_bulk_create_and_list(
@@ -90,12 +90,12 @@ class TestItemsCRUDIntegration:
 
         # Create multiple items
         for item_data in sample_items:
-            response = integration_client.post("/items", json=item_data)
+            response = integration_client.post("/api/v1/items", json=item_data)
             assert response.status_code == 201
             created_ids.append(response.json()["id"])
 
         # List all items
-        list_response = integration_client.get("/items")
+        list_response = integration_client.get("/api/v1/items")
         assert list_response.status_code == 200
         items = list_response.json()
 
@@ -106,7 +106,7 @@ class TestItemsCRUDIntegration:
 
         # Cleanup
         for item_id in created_ids:
-            integration_client.delete(f"/items/{item_id}")
+            integration_client.delete(f"/api/v1/items/{item_id}")
 
     def test_pagination(self, integration_client: TestClient, sample_items: list[dict]):
         """Test list pagination with skip and limit."""
@@ -114,20 +114,20 @@ class TestItemsCRUDIntegration:
 
         # Create items
         for item_data in sample_items:
-            response = integration_client.post("/items", json=item_data)
+            response = integration_client.post("/api/v1/items", json=item_data)
             created_ids.append(response.json()["id"])
 
         # Test pagination
-        page1 = integration_client.get("/items?skip=0&limit=2")
+        page1 = integration_client.get("/api/v1/items?skip=0&limit=2")
         assert page1.status_code == 200
         assert len(page1.json()) <= 2
 
-        page2 = integration_client.get("/items?skip=2&limit=2")
+        page2 = integration_client.get("/api/v1/items?skip=2&limit=2")
         assert page2.status_code == 200
 
         # Cleanup
         for item_id in created_ids:
-            integration_client.delete(f"/items/{item_id}")
+            integration_client.delete(f"/api/v1/items/{item_id}")
 
 
 class TestHealthIntegration:

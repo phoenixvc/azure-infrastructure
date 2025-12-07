@@ -30,7 +30,7 @@ class TestPerformance:
         max_response_time_ms = 1000  # 1 second threshold
 
         start_time = time.time()
-        response = e2e_client.get("/items")
+        response = e2e_client.get("/api/v1/items")
         end_time = time.time()
 
         response_time_ms = (end_time - start_time) * 1000
@@ -53,7 +53,7 @@ class TestPerformance:
         }
 
         start_time = time.time()
-        response = e2e_client.post("/items", json=item_data)
+        response = e2e_client.post("/api/v1/items", json=item_data)
         end_time = time.time()
 
         response_time_ms = (end_time - start_time) * 1000
@@ -66,7 +66,7 @@ class TestPerformance:
 
         # Cleanup
         item_id = response.json()["id"]
-        e2e_client.delete(f"/items/{item_id}")
+        e2e_client.delete(f"/api/v1/items/{item_id}")
 
     def test_concurrent_health_checks(self, e2e_client: TestClient):
         """Test handling concurrent health check requests."""
@@ -108,7 +108,7 @@ class TestPerformance:
                 "price": 10.0 * index,
                 "quantity": index,
             }
-            response = e2e_client.post("/items", json=item_data)
+            response = e2e_client.post("/api/v1/items", json=item_data)
             return {"status": response.status_code, "data": response.json()}
 
         # Create items concurrently
@@ -122,7 +122,7 @@ class TestPerformance:
         # Cleanup
         for result in results:
             item_id = result["data"]["id"]
-            e2e_client.delete(f"/items/{item_id}")
+            e2e_client.delete(f"/api/v1/items/{item_id}")
 
 
 class TestReliability:
@@ -160,17 +160,17 @@ class TestReliability:
                     "price": 10.0,
                     "quantity": 1,
                 }
-                create_resp = e2e_client.post("/items", json=item_data)
+                create_resp = e2e_client.post("/api/v1/items", json=item_data)
                 assert create_resp.status_code == 201
 
                 item_id = create_resp.json()["id"]
 
                 # Read
-                get_resp = e2e_client.get(f"/items/{item_id}")
+                get_resp = e2e_client.get(f"/api/v1/items/{item_id}")
                 assert get_resp.status_code == 200
 
                 # Delete
-                del_resp = e2e_client.delete(f"/items/{item_id}")
+                del_resp = e2e_client.delete(f"/api/v1/items/{item_id}")
                 assert del_resp.status_code == 204
 
             except AssertionError as e:

@@ -56,9 +56,12 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Register routers
+    # Register routers with API versioning
+    # Health endpoints at root level (for Azure health probes)
     app.include_router(health_router)
-    app.include_router(items_router)
+
+    # Versioned API endpoints
+    app.include_router(items_router, prefix="/api/v1")
 
     @app.get("/")
     async def root():
@@ -68,6 +71,7 @@ def create_app() -> FastAPI:
             "version": settings.app_version,
             "docs": "/docs",
             "health": "/health",
+            "api": "/api/v1",
         }
 
     return app
