@@ -28,7 +28,7 @@ jobs:
       deployment_name: ${{ steps.deploy.outputs.deployment_name }}
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Azure Login
         uses: azure/login@v1
@@ -53,7 +53,7 @@ jobs:
     environment: ${{ github.event.inputs.environment || 'dev' }}
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Azure Login
         uses: azure/login@v1
