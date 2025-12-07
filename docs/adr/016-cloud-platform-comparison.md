@@ -192,18 +192,19 @@ This ADR serves two purposes:
 
 ### Missing Components
 
-| Component | Type | Priority |
-|-----------|------|----------|
-| Storage abstraction | Code | High |
-| Container Apps Bicep module | Infra | High |
-| Notification Hubs module | Infra | Medium |
-| API Management module | Infra | Medium |
-| Front Door / CDN module | Infra | Medium |
-| Terraform equivalents | Infra | Medium |
-| OpenTelemetry integration | Code | Medium |
-| Rate limiting middleware | Code | Low |
-| Circuit breaker pattern | Code | Low |
-| Retry policies | Code | Low |
+| Component | Type | Priority | Status |
+|-----------|------|----------|--------|
+| Storage abstraction | Code | High | ✅ Completed |
+| Container Apps Bicep module | Infra | High | ✅ Completed |
+| Container Apps Jobs module | Infra | High | ✅ Completed |
+| Notification Hubs module | Infra | Medium | Pending |
+| API Management module | Infra | Medium | Pending |
+| Front Door / CDN module | Infra | Medium | Pending |
+| Terraform equivalents | Infra | Medium | Pending |
+| OpenTelemetry integration | Code | Medium | Pending |
+| Rate limiting middleware | Code | Low | Pending |
+| Circuit breaker pattern | Code | Low | Pending |
+| Retry policies | Code | Low | Pending |
 
 ### Architecture Gaps
 
