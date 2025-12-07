@@ -80,4 +80,31 @@ pytest tests/e2e -v
 ## Related
 - [azure-infrastructure](https://github.com/phoenixvc/azure-infrastructure) - Standards & modules
 
-Built with ❤️ by Phoenix VC
+---
+
+## Connect With Us
+
+<div align="center">
+
+[![ChatGPT](https://img.shields.io/badge/ChatGPT-74aa9c?style=for-the-badge&logo=openai&logoColor=white)](https://chat.openai.com)
+[![X](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/phoenixvc)
+[![Meta](https://img.shields.io/badge/Meta-0668E1?style=for-the-badge&logo=meta&logoColor=white)](https://facebook.com/phoenixvc)
+[![Bluesky](https://img.shields.io/badge/Bluesky-0285FF?style=for-the-badge&logo=bluesky&logoColor=white)](https://bsky.app/profile/phoenixvc)
+
+</div>
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+
+**Built with ❤️ by [Phoenix Venture Capital](https://phoenixvc.co.za)**
+
+*Empowering innovation through technology*
+
+</div>
