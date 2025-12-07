@@ -31,6 +31,42 @@ Best for:
 - Strong typing
 - Complex business logic
 
+### 4. Node.js + PostgreSQL
+**Path**: `examples/nodejs-postgres/`
+
+Best for:
+- Full-stack JavaScript teams
+- Real-time applications
+- Rapid prototyping
+- Serverless deployments
+
+### 5. Go + Redis
+**Path**: `examples/go-redis/`
+
+Best for:
+- High-throughput APIs
+- Microservices
+- Performance-critical apps
+- Small memory footprint
+
+### 6. Python + DynamoDB
+**Path**: `examples/python-dynamodb/`
+
+Best for:
+- Serverless applications
+- Variable traffic patterns
+- Key-value access patterns
+- Global distribution
+
+### 7. Java Spring Boot + MySQL
+**Path**: `examples/spring-mysql/`
+
+Best for:
+- Large enterprise apps
+- Complex transactions
+- Java expertise teams
+- Microservices architecture
+
 ## How to Use
 
 1. Choose an example
@@ -47,7 +83,7 @@ Have another stack combination? Submit a PR with:
 - Tests
 
 ## Planned Examples
-- [ ] Node.js + PostgreSQL
-- [ ] Go + Redis
-- [ ] Python + DynamoDB
-- [ ] Java Spring Boot + MySQL
+- [ ] Ruby on Rails + PostgreSQL
+- [ ] Rust + SQLite
+- [ ] Elixir Phoenix + PostgreSQL
+- [ ] Kotlin Ktor + MongoDB
