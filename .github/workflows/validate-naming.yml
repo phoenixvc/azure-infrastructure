@@ -1,0 +1,36 @@
+name: Validate Azure Naming
+
+on:
+workflow_call:
+  inputs:
+    bicep_path:
+      description: 'Path to Bicep files'
+      required: false
+      type: string
+      default: './infra'
+
+jobs:
+validate:
+  name: Validate Naming Conventions
+  runs-on: ubuntu-latest
+  
+  steps:
+    - name: Checkout calling repository
+      uses: actions/checkout@v4
+    
+    - name: Checkout azure-infrastructure
+      uses: actions/checkout@v4
+      with:
+        repository: phoenixvc/azure-infrastructure
+        path: .azure-infrastructure
+        ref: main
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Validate naming
+      run: |
+        python .azure-infrastructure/tools/nl_az_name.py validate nl-prod-test-api-euw
+        echo "✅ Naming validation configured"

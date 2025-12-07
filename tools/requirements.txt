@@ -1,0 +1,2 @@
+# Python dependencies for azure-infrastructure tools
+# No external dependencies required for basic validation
