@@ -17,4 +17,4 @@ pytest-mock==3.12.0
 anyio==4.2.0
 
 # Load testing (optional)
-locust==2.20.1
+locust==2.42.6
