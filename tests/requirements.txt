@@ -2,7 +2,7 @@
 pytest==8.0.0
 pytest-asyncio==0.23.3
 pytest-cov==4.1.0
-pytest-xdist==3.5.0
+pytest-xdist==3.8.0
 httpx==0.26.0
 
 # API Testing (required for FastAPI TestClient)
